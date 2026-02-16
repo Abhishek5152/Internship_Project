@@ -1,0 +1,64 @@
+{% extends "admin/admin_layout.html" %}
+
+{% block content %} 
+{% if msg %}
+<script>alert("{{ msg }}")</script>
+{% endif %}
+            <div class="page-content">
+                <!-- Page Header-->
+                <div class="page-header no-margin-bottom">
+                <div class="container-fluid">
+                    <h2 class="h5 no-margin-bottom">Add Budget</h2>
+                </div>
+                </div>
+                <!-- Breadcrumb-->
+                <div class="container-fluid">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+                    <li class="breadcrumb-item active">Add Budget</li>
+                </ul>
+                </div>
+                <section class="no-padding-top">
+                    <div class="container-fluid">
+                        <div class="row">
+                        <!-- Basic Form-->
+                        <div class="col-lg-6">
+                            <div class="block">
+                            <div class="block-body">
+                                <form method="post" action="{{ url_for('add_budget') }}">
+                                <div class="form-group">
+                                    <label class="form-control-label">Department</label>
+                                    <input type="text" name="bgt_dept" placeholder="Department" class="form-control" required data-msg="Please enter the department">
+                                </div>
+                                <div class="form-group">       
+                                    <label class="form-control-label">Budget Category</label>
+                                    <select class="form-control" name="bgt_cat" required data-msg ="Please select a budget category">
+                                        <option value="">Select Budget Category</option>
+                                        {% for cat in categories %}
+                                            <option value="{{ cat[0] }}">{{ cat[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Amount Limit</label>
+                                    <input type="number" name="bgt_amtlmt" placeholder="Amount Limit" class="form-control" required data-msg="Please enter the amount limit">
+                                </div>
+                                <div class="form-group">       
+                                    <label class="form-control-label">Start Date</label>
+                                    <input type="date" name="bgt_start_date" class="form-control" required data-msg="Please enter the start date">
+                                </div>
+                                <div class="form-group">       
+                                    <label class="form-control-label">End Date</label>
+                                    <input type="date" name="bgt_end_date" class="form-control" required data-msg="Please enter the end date">
+                                </div>
+                                <div class="form-group">       
+                                    <input type="submit" value="Submit" class="btn btn-primary">
+                                </div>
+                                </form>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </section>    
+{% endblock %}

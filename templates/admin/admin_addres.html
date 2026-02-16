@@ -1,0 +1,57 @@
+{% extends "admin/admin_layout.html" %}
+
+{% block content %} 
+{% if msg %}
+<script>alert("{{ msg }}")</script>
+{% endif %}
+            <div class="page-content">
+                <!-- Page Header-->
+                <div class="page-header no-margin-bottom">
+                <div class="container-fluid">
+                    <h2 class="h5 no-margin-bottom">Add Resources</h2>
+                </div>
+                </div>
+                <!-- Breadcrumb-->
+                <div class="container-fluid">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+                    <li class="breadcrumb-item active">Add Resources</li>
+                </ul>
+                </div>
+                <section class="no-padding-top">
+                    <div class="container-fluid">
+                        <div class="row">
+                        <!-- Basic Form-->
+                        <div class="col-lg-6">
+                            <div class="block">
+                            <!-- <div class="title"><strong class="d-block">Category Form</strong></div> -->
+                            <div class="block-body">
+                                <form method="post" action="{{ url_for('add_resource') }}">
+                                <div class="form-group">
+                                    <label class="form-control-label">Resource Name</label>
+                                    <input type="text" name="res_name" placeholder="Resource Name" class="form-control" required data-msg="Please enter the resource name">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Resource Type</label>
+                                    <select class="form-control" name="res_type" required data-msg ="Please select a resource type">
+                                        <option value="">Select Resource Type</option>
+                                        <option value="physical">Physical</option>
+                                        <option value="digital">Digital</option>
+                                        <option value="Shared">Shared</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">       
+                                    <label class="form-control-label">Description</label>
+                                    <textarea name="res_desc" placeholder="Description" class="form-control"></textarea>
+                                </div>
+                                <div class="form-group">       
+                                    <input type="submit" value="Submit" class="btn btn-primary">
+                                </div>
+                                </form>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </section>    
+{% endblock %}

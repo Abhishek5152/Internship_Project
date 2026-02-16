@@ -1,0 +1,68 @@
+{% extends "admin/admin_layout.html" %}
+
+{% block content %} 
+{% if msg %}
+<script>alert("{{ msg }}")</script>
+{% endif %}
+            <div class="page-content">
+                <!-- Page Header-->
+                <div class="page-header no-margin-bottom">
+                <div class="container-fluid">
+                    <h2 class="h5 no-margin-bottom">Add Policy</h2>
+                </div>
+                </div>
+                <!-- Breadcrumb-->
+                <div class="container-fluid">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+                    <li class="breadcrumb-item active">Add Policy</li>
+                </ul>
+                </div>
+                <section class="no-padding-top">
+                    <div class="container-fluid">
+                        <div class="row">
+                        <!-- Basic Form-->
+                        <div class="col-lg-6">
+                            <div class="block">
+                            <div class="block-body">
+                                <form method="post" action="{{ url_for('add_policy') }}">
+                                <div class="form-group">
+                                    <label class="form-control-label">Policy Type</label>
+                                    <select class="form-control" name="poli_type" id="poli_type" required data-msg ="Please select a policy type">
+                                        <option value="">Select Policy Type</option>
+                                        <option value="MAX_AMOUNT">Max Amount</option>
+                                        <option value="DAILY_LIMIT">Daily Limit</option>
+                                        <option value="APPROVAL_REQUIRED">Approval Required</option>
+                                        <option value="AUTO_REJECT_LIMIT">Auto Reject Limit</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">       
+                                    <label class="form-control-label">Expense Category</label>
+                                    <select class="form-control" name="exp_cat" required data-msg ="Please select an expense category">
+                                        <option value="">Select Expense Category</option>
+                                        {% for cat in categories %}
+                                            <option value="{{ cat[0] }}">{{ cat[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Rule Value</label>
+                                    <div id="rule_value_container">
+                                    <input type="text" name="poli_rule" placeholder="Enter Rule Value" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Policy Description</label>
+                                    <input type="text" name="poli_desc" placeholder="Policy Description" class="form-control" >
+                                </div>
+                                <div class="form-group">       
+                                    <input type="submit" value="Submit" class="btn btn-primary">
+                                </div>
+                                </form>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </section>    
+{% endblock %}
