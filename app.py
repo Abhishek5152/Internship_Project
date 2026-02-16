@@ -1,5 +1,6 @@
 from flask import Flask, render_template, url_for, request, session, redirect
 from flask_session import Session
+from functools import wraps
 
 import pymysql
 
@@ -12,11 +13,21 @@ Session(app)
 
 conn = pymysql.connect(host='localhost', user='root', password='', database='db_eerm')
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "admin_id" not in session:
+            return redirect(url_for('addlogin'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/dashboard')
+@login_required
 def dashboard():
     return render_template('admin/admin_dashboard.html')
 
 @app.route('/addres')
+@login_required
 def addres():
     return render_template('admin/admin_addres.html')
 
@@ -62,6 +73,7 @@ def add_resource():
 
 
 @app.route('/viewres')
+@login_required
 def viewres():
     cursor = conn.cursor()
     try:
@@ -76,6 +88,7 @@ def viewres():
         cursor.close()
 
 @app.route('/toggle_resource_status/<int:res_id>', methods=['POST'])
+@login_required
 def toggle_resource_status(res_id):
     cursor = conn.cursor()
     try:
@@ -94,6 +107,16 @@ def toggle_resource_status(res_id):
             cursor.execute("UPDATE eerm_res SET res_status = 'Available' WHERE res_id = %s", (res_id,))
         cursor.execute("UPDATE eerm_res SET res_lifestatus = %s WHERE res_id = %s", (new_status, res_id))
         conn.commit()
+
+        add_log(
+            session.get("admin_id"),
+            "TOGGLE",
+            "RESOURCE",
+            res_id,
+            f"Changed resource status to {new_status}"
+        )
+
+
         return redirect(url_for('viewres'))
 
     except Exception as e:
@@ -104,6 +127,7 @@ def toggle_resource_status(res_id):
         cursor.close()
 
 @app.route('/addbgt')
+@login_required
 def addbgt():
     cursor = conn.cursor()
     try:
@@ -138,6 +162,15 @@ def add_budget():
             VALUES (%s, %s, %s, %s, %s)
         """, (bgt_dept, bgt_cat, bgt_amtlmt, bgt_start_date, bgt_end_date))
 
+        add_log(
+            session.get("admin_id"),
+            "CREATE",
+            "BUDGET",
+            cursor.lastrowid,
+            f"Created budget for {bgt_dept} with category {bgt_cat} and amount limit {bgt_amtlmt}"
+        )
+
+
         conn.commit()
         return redirect(url_for('addbgt'))
     except Exception as e:
@@ -148,6 +181,7 @@ def add_budget():
 
 
 @app.route('/viewbgt')
+@login_required
 def view_budget():
     cursor = conn.cursor()
     try:
@@ -170,6 +204,7 @@ def view_budget():
         cursor.close()
 
 @app.route('/update_budget', methods=['POST'])
+@login_required
 def update_budget():
     cursor = conn.cursor()
     try:
@@ -198,6 +233,7 @@ def update_budget():
 
 
 @app.route('/addpoli')
+@login_required
 def addpoli():
     cursor = conn.cursor()
     try:
@@ -238,6 +274,7 @@ def add_policy():
         cursor.close()
 
 @app.route('/viewpoli')
+@login_required
 def viewpoli():
     cursor = conn.cursor()
     try:
@@ -258,9 +295,42 @@ def viewpoli():
     finally:
         cursor.close()
 
+def add_log(user_id, action_type, entity_type, entity_id, description):
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO eerm_logs 
+            (user_id, action, entity, entity_id, log_desc)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (user_id, action_type, entity_type, entity_id, description))
+    finally:
+        cursor.close()
+
+@app.route('/viewlogs')
+def view_logs():
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT l.log_id,
+                   l.user_id,
+                   l.action,
+                   l.entity,
+                   l.entity_id,
+                   l.log_desc,
+                   l.created_at
+            FROM eerm_logs l
+            ORDER BY l.created_at DESC
+        """)
+        logs = cursor.fetchall()
+        return render_template('admin/admin_viewlogs.html', logs=logs)
+    finally:
+        cursor.close()
+
+
 @app.route('/')
 def addlogin():
     return render_template('admin/admin_login.html')
+
 
 @app.route('/admin_login', methods=['POST'])
 def admin_login():
@@ -268,12 +338,13 @@ def admin_login():
     try:
         admin_email = request.form['admin_email']
         admin_pass = request.form['admin_pass']
-        cursor.execute("SELECT * FROM eerm_admin WHERE admin_email = %s AND admin_pass = %s", (admin_email, admin_pass))
+        cursor.execute("SELECT * FROM eerm_users WHERE user_email = %s AND user_pass = %s", (admin_email, admin_pass))
         admin = cursor.fetchone()
         cursor.close()
         if admin:
             session["admin_id"] = admin[0]
             session["admin_email"] = admin[1]
+            session["admin_role"] = 'Admin'
 
             msg = "Login successful!"
             return redirect(url_for('dashboard', msg=msg))
