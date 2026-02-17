@@ -61,6 +61,14 @@ def add_resource():
             VALUES (%s, %s, %s, %s)
         """, (cat_id, res_name, res_type, res_desc))
 
+        add_log(
+            session.get("admin_id"),
+            "ADD",
+            "RESOURCE",
+            cursor.lastrowid,
+            f"Added new resource: {res_name} of type {res_type}"
+        )
+
         conn.commit()
         return redirect(url_for('addres'))
 
@@ -188,6 +196,7 @@ def view_budget():
         cursor.execute("""
             SELECT b.budget_id,
                    b.department,
+                   b.cat_id,
                    c.cat_name,
                    b.amt_lmt,
                    b.start_date,
@@ -196,7 +205,9 @@ def view_budget():
             JOIN eerm_expcat c ON b.cat_id = c.cat_id
         """)
         budgets = cursor.fetchall()
-        return render_template('admin/admin_viewbgt.html', budgets=budgets)
+        cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
+        categories = cursor.fetchall()
+        return render_template('admin/admin_viewbgt.html', budgets=budgets, categories=categories)
     except Exception as e:
         print("Error fetching budgets:", e)
         return "Error fetching budgets"
@@ -218,12 +229,21 @@ def update_budget():
         cursor.execute("""
             UPDATE eerm_budget
             SET department=%s,
-                cat_id=(SELECT cat_id FROM eerm_expcat WHERE cat_name=%s),
+                cat_id=%s,
                 amt_lmt=%s,
                 start_date=%s,
                 end_date=%s
             WHERE budget_id=%s
         """, (department, category, amt_lmt, start_date, end_date, budget_id))
+
+        add_log(
+            session.get("admin_id"),
+            "UPDATE",
+            "BUDGET",
+            budget_id,
+            f"Updated budget for {department} with category {category} and amount limit {amt_lmt}"
+        )
+
 
         conn.commit()
         return redirect(url_for('view_budget'))
@@ -231,6 +251,23 @@ def update_budget():
     finally:
         cursor.close()
 
+@app.route('/delete_budget/<int:budget_id>')
+@login_required
+def delete_budget(budget_id):
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM eerm_budget WHERE budget_id=%s", (budget_id,))
+        add_log(
+            session.get("admin_id"),
+            "DELETE",
+            "BUDGET",
+            budget_id,
+            f"Deleted budget with ID {budget_id}"
+        )
+        conn.commit()
+        return redirect(url_for('view_budget'))
+    finally:
+        cursor.close()
 
 @app.route('/addpoli')
 @login_required
@@ -264,6 +301,14 @@ def add_policy():
             INSERT INTO eerm_poli (poli_type, cat_id, rule_value, poli_desc)
             VALUES (%s, %s, %s, %s)
         """, (poli_type, exp_cat, poli_rule, poli_desc))
+
+        add_log(
+            session.get("admin_id"),
+            "ADD",
+            "POLICY",
+            cursor.lastrowid,
+            f"Added new policy: {poli_type} with rule {poli_rule} for category {exp_cat}"
+        )
 
         conn.commit()
         return redirect(url_for('addpoli'))
@@ -347,6 +392,15 @@ def admin_login():
             session["admin_role"] = 'Admin'
 
             msg = "Login successful!"
+
+            add_log(
+            session.get("admin_id"),
+            "LOGIN",
+            "ADMIN",
+            session.get("admin_id"),
+            f"Admin logged in successfully"
+        )
+
             return redirect(url_for('dashboard', msg=msg))
         else:
             msg = "Invalid email or password"

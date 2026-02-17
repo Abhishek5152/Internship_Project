@@ -27,6 +27,7 @@
                                 <tr>
                                 <th>ID</th>
                                 <th>Department</th>
+                                <th>Category ID</th>
                                 <th>Category</th>
                                 <th>Amount Limit</th>
                                 <th>Start Date</th>
@@ -38,10 +39,11 @@
                                 <tr>
                                     <td>{{ bgt[0] }}</td>  <!-- ID -->
                                     <td>{{ bgt[1] }}</td>  <!-- Department -->
-                                    <td>{{ bgt[2] }}</td>  <!-- Category -->
-                                    <td>{{ "{:,}".format(bgt[3]|int) }}</td>  <!-- Amount Limit -->
-                                    <td>{{ bgt[4].strftime('%d-%m-%Y') }}</td>  <!-- Start Date -->
-                                    <td>{{ bgt[5].strftime('%d-%m-%Y') }}</td>  <!-- End Date -->
+                                    <td>{{ bgt[2] }}</td>  <!-- Category ID -->
+                                    <td>{{ bgt[3] }}</td>  <!-- Category -->
+                                    <td>{{ "{:,}".format(bgt[4]|int) }}</td>  <!-- Amount Limit -->
+                                    <td>{{ bgt[5].strftime('%d-%m-%Y') }}</td>  <!-- Start Date -->
+                                    <td>{{ bgt[6].strftime('%d-%m-%Y') }}</td>  <!-- End Date -->
                                     <td>
                                         <button class="btn btn-sm btn-primary"
                                                 data-toggle="modal"
@@ -49,11 +51,11 @@
                                                 data-id="{{ bgt[0] }}"
                                                 data-dept="{{ bgt[1] }}"
                                                 data-cat="{{ bgt[2] }}"
-                                                data-amt="{{ bgt[3] }}"
-                                                data-start="{{ bgt[4] }}"
-                                                data-end="{{ bgt[5] }}">Edit
+                                                data-amt="{{ bgt[4] }}"
+                                                data-start="{{ bgt[5] }}"
+                                                data-end="{{ bgt[6] }}">Edit
                                         </button>
-                                        <a href="#" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this budget?');">Delete</a>
+                                        <a href="{{ url_for('delete_budget', budget_id=bgt[0]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this budget?');">Delete</a>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -87,7 +89,7 @@
 
                         <div class="form-group">
                             <label>Category</label>
-                            <select class="form-control" name="category" required data-msg ="Please select a budget category">
+                            <select class="form-control" name="category" id="edit_cat" required data-msg ="Please select a budget category">
                                 <option value="">Select Budget Category</option>
                                 {% for cat in categories %}
                                     <option value="{{ cat[0] }}">{{ cat[1] }}</option>
