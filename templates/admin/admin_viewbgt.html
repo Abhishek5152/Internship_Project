@@ -30,6 +30,7 @@
                                 <th>Category ID</th>
                                 <th>Category</th>
                                 <th>Amount Limit</th>
+                                <th>Available Budget</th>
                                 <th>Start Date</th>
                                 <th>End Date</th>
                                 </tr>
@@ -42,8 +43,9 @@
                                     <td>{{ bgt[2] }}</td>  <!-- Category ID -->
                                     <td>{{ bgt[3] }}</td>  <!-- Category -->
                                     <td>{{ "{:,}".format(bgt[4]|int) }}</td>  <!-- Amount Limit -->
-                                    <td>{{ bgt[5].strftime('%d-%m-%Y') }}</td>  <!-- Start Date -->
-                                    <td>{{ bgt[6].strftime('%d-%m-%Y') }}</td>  <!-- End Date -->
+                                    <td>{{ "{:,}".format(bgt[5]|int) }}</td>  <!-- Available Budget -->
+                                    <td>{{ bgt[6].strftime('%d-%m-%Y') }}</td>  <!-- Start Date -->
+                                    <td>{{ bgt[7].strftime('%d-%m-%Y') }}</td>  <!-- End Date -->
                                     <td>
                                         <button class="btn btn-sm btn-primary"
                                                 data-toggle="modal"
@@ -52,8 +54,9 @@
                                                 data-dept="{{ bgt[1] }}"
                                                 data-cat="{{ bgt[2] }}"
                                                 data-amt="{{ bgt[4] }}"
-                                                data-start="{{ bgt[5] }}"
-                                                data-end="{{ bgt[6] }}">Edit
+                                                data-avail="{{ bgt[5] }}"
+                                                data-start="{{ bgt[6] }}"
+                                                data-end="{{ bgt[7] }}">Edit
                                         </button>
                                         <a href="{{ url_for('delete_budget', budget_id=bgt[0]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this budget?');">Delete</a>
                                     </td>
@@ -100,6 +103,11 @@
                         <div class="form-group">
                             <label>Amount Limit</label>
                             <input type="number" name="amt_lmt" id="edit_amt" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Available Budget</label>
+                            <input type="number" name="avail_bgt" id="edit_avail" class="form-control" required>
                         </div>
 
                         <div class="form-group">

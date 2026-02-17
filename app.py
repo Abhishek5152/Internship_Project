@@ -165,10 +165,10 @@ def add_budget():
             return redirect(url_for('addbgt', msg=msg))
 
         cursor.execute("""
-            INSERT INTO eerm_budget (department, cat_id, amt_lmt, start_date, end_date)
+            INSERT INTO eerm_budget (department, cat_id, amt_lmt, avail_bgt, start_date, end_date)
 
-            VALUES (%s, %s, %s, %s, %s)
-        """, (bgt_dept, bgt_cat, bgt_amtlmt, bgt_start_date, bgt_end_date))
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (bgt_dept, bgt_cat, bgt_amtlmt, bgt_amtlmt, bgt_start_date, bgt_end_date))
 
         add_log(
             session.get("admin_id"),
@@ -199,6 +199,7 @@ def view_budget():
                    b.cat_id,
                    c.cat_name,
                    b.amt_lmt,
+                   b.avail_bgt,
                    b.start_date,
                    b.end_date
             FROM eerm_budget b
@@ -223,6 +224,7 @@ def update_budget():
         department = request.form['department']
         category = request.form['category']
         amt_lmt = request.form['amt_lmt']
+        avail_bgt = request.form['avail_bgt']
         start_date = request.form['start_date']
         end_date = request.form['end_date']
 
@@ -231,10 +233,11 @@ def update_budget():
             SET department=%s,
                 cat_id=%s,
                 amt_lmt=%s,
+                avail_bgt=%s,
                 start_date=%s,
                 end_date=%s
             WHERE budget_id=%s
-        """, (department, category, amt_lmt, start_date, end_date, budget_id))
+        """, (department, category, amt_lmt, avail_bgt, start_date, end_date, budget_id))
 
         add_log(
             session.get("admin_id"),
@@ -340,6 +343,78 @@ def viewpoli():
     finally:
         cursor.close()
 
+@app.route('/manusers')
+@login_required
+def manusers():
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT * FROM eerm_users where user_role != 'Admin'")
+        users = cursor.fetchall()
+        cursor.execute("SELECT DISTINCT user_role FROM eerm_users")
+        return render_template('admin/admin_manusers.html', users=users)
+    except Exception as e:
+        print("Error fetching users:", e)
+        return "Error fetching users"
+    finally:
+        cursor.close()
+
+@app.route('/update_user', methods=['POST'])
+@login_required
+def update_user():
+    cursor = conn.cursor()
+    try:
+        user_id = request.form['user_id']
+        user_name = request.form['user_name']
+        user_email = request.form['user_email']
+        user_role = request.form['user_role']
+        user_status = request.form['user_status']
+
+        cursor.execute("""
+            UPDATE eerm_users SET 
+                user_name=%s, 
+                user_email=%s, 
+                user_role=%s, 
+                user_status=%s
+            WHERE user_id=%s
+        """, (user_name, user_email, user_role, user_status, user_id))
+
+        add_log(
+            session.get("admin_id"),
+            "UPDATE",
+            "USER",
+            user_id,
+            f"Updated details for User ID {user_id}"
+        )
+
+        conn.commit()
+        return redirect(url_for('manusers'))
+    except Exception as e:
+        print("Error updating user:", e)
+        return "Error updating user"
+    finally:
+        cursor.close()
+
+@app.route('/delete_user/<int:user_id>')
+@login_required
+def delete_user(user_id):
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM eerm_users WHERE user_id = %s", (user_id,))
+        add_log(
+            session.get("admin_id"),
+            "DELETE",
+            "USER",
+            user_id,
+            f"Deleted User ID {user_id}"
+        )
+        conn.commit()
+        return redirect(url_for('manusers'))
+    except Exception as e:
+        print("Error deleting user:", e)
+        return "Error deleting user"
+    finally:
+        cursor.close()
+
 def add_log(user_id, action_type, entity_type, entity_id, description):
     cursor = conn.cursor()
     try:
@@ -409,6 +484,57 @@ def admin_login():
         print("Error during login:", e)
         cursor.close()
         return "Error during login"
+    
+@app.route('/user_login')
+def user_login():
+    return render_template('user_login.html')
+
+@app.route('/userlogin', methods=['POST'])
+def userlogin():
+    cursor = conn.cursor()
+    try:
+        user_email = request.form['user_email']
+        user_pass = request.form['user_pass']
+        cursor.execute("SELECT * FROM eerm_users WHERE user_email = %s AND user_pass = %s", (user_email, user_pass))
+        user = cursor.fetchone()
+        cursor.close()
+        if user:
+            session["user_id"] = user[0]
+            session["user_email"] = user[1]
+
+            add_log(
+            session.get("user_id"),
+            "LOGIN",
+            "USER",
+            session.get("user_id"),
+            f"User logged in successfully"
+            )
+
+            msg = "Login successful!"
+
+            if user[4] == 'Manager':
+                session["user_role"] = 'Manager'
+                return redirect(url_for('mandash', msg=msg))
+            elif user[4] == 'Employee':
+                session["user_role"] = 'Employee'
+                return redirect(url_for('empdash', msg=msg))
+            elif user[4] == 'Admin':
+                msg = "Admins must log in through the admin portal"
+                return redirect(url_for('addlogin', msg=msg))
+
+        else:
+            msg = "Invalid email or password"
+            return redirect(url_for('user_login', msg=msg))
+    except Exception as e:
+        print("Error during login:", e)
+        cursor.close()
+        return "Error during login"
+    
+@app.route('/mandash')
+@login_required
+def mandash():
+    return render_template('manager/man_dashboard.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

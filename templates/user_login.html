@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>EERM Admin </title>
+    <title>EERM User Portal </title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="all,follow">
@@ -38,7 +38,7 @@
               <div class="info d-flex align-items-center">
                 <div class="content">
                   <div class="logo">
-                    <h1>Admin Login</h1>
+                    <h1>User Login</h1>
                   </div>
                   <p>Enterprise Expense & Resource Management System</p>
                 </div>
@@ -48,16 +48,16 @@
             <div class="col-lg-6 bg-white">
               <div class="form d-flex align-items-center">
                 <div class="content">
-                  <form method="post" action="{{ url_for('admin_login') }}" class="form-validate">
+                    <form method="post" action="{{ url_for('userlogin') }}" class="form-validate">
                     <div class="form-group">
-                      <input id="login-username" type="text" name="admin_email" required data-msg="Please enter your email" class="input-material">
+                      <input id="login-username" type="text" name="user_email" required data-msg="Please enter your email" class="input-material">
                       <label for="login-username" class="label-material">Email</label>
                     </div>
                     <div class="form-group">
-                      <input id="login-password" type="password" name="admin_pass" required data-msg="Please enter your password" class="input-material">
+                      <input id="login-password" type="password" name="user_pass" required data-msg="Please enter your password" class="input-material">
                       <label for="login-password" class="label-material">Password</label>
                     </div><input type="submit" value="Login" class="btn btn-primary">
-                  </form><a href="/user_login" class="forgot-pass">Are you a User?</a>
+                    </form><a href="/" class="forgot-pass">Are you an Admin?</a>
                 </div>
               </div>
             </div>

@@ -3,7 +3,7 @@
     <head> 
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>EERM Admin</title>
+        <title>EERM Manager</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="all,follow">
@@ -42,8 +42,8 @@
             <div class="container-fluid d-flex align-items-center justify-content-between">
                 <div class="navbar-header">
                 <!-- Navbar Header--><a href="/dashboard" class="navbar-brand">
-                    <div class="brand-text brand-big visible text-uppercase"><strong class="text-primary">EERM</strong><strong>Admin</strong></div>
-                    <div class="brand-text brand-sm"><strong class="text-primary">E</strong><strong>A</strong></div></a>
+                    <div class="brand-text brand-big visible text-uppercase"><strong class="text-primary">EERM</strong><strong>Manager</strong></div>
+                    <div class="brand-text brand-sm"><strong class="text-primary">E</strong><strong>M</strong></div></a>
                 <!-- Sidebar Toggle Btn-->
                 <button class="sidebar-toggle"><i class="fa fa-long-arrow-left"></i></button>
                 </div>
@@ -204,9 +204,8 @@
                 <li class="{% if request.path == '/viewpoli' %}active{% endif %}"><a href="/viewpoli">View Policies</a></li>
                 </ul>
             </li>
-            <li><a href="/manusers"> <i class="icon-user"></i>Manage Users </a></li>
             <li><a href="/viewlogs"> <i class="icon-padnote"></i>Audit Logs </a></li>
-            <li><a href="/user_login"> <i class="icon-logout"></i>Logout </a></li>
+            <li><a href="/"> <i class="icon-logout"></i>Logout </a></li>
         </ul>
         </nav>
         <!-- Sidebar Navigation end-->
@@ -230,74 +229,5 @@
         <script src="static/admin/vendor/jquery-validation/jquery.validate.min.js"></script>
         <script src="static/admin/js/charts-home.js"></script>
         <script src="static/admin/js/front.js"></script>
-        <script>
-            document.getElementById("poli_type").addEventListener("change", function() {
-
-                let type = this.value;
-                let container = document.getElementById("rule_value_container");
-
-                if (type === "MAX_AMOUNT") {
-                    container.innerHTML = `
-                        <input type="number" name="poli_rule"
-                            class="form-control"
-                            placeholder="Enter maximum amount"
-                            required>
-                    `;
-                }
-
-                else if (type === "DAILY_LIMIT") {
-                    container.innerHTML = `
-                        <input type="number" name="poli_rule"
-                            class="form-control"
-                            placeholder="Enter daily limit"
-                            required>
-                    `;
-                }
-
-                else if (type === "APPROVAL_REQUIRED") {
-                    container.innerHTML = `
-                        <select name="poli_rule" class="form-control" required>
-                            <option value="">Select</option>
-                            <option value="YES">Yes</option>
-                            <option value="NO">No</option>
-                        </select>
-                    `;
-                }
-
-                else {
-                    container.innerHTML = `
-                        <input type="text" name="poli_rule"
-                            class="form-control"
-                            placeholder="Enter rule value"
-                            required>
-                    `;
-                }
-
-            });
-        </script>
-        <script>
-        $('#editModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-
-            $('#edit_id').val(button.data('id'));
-            $('#edit_dept').val(button.data('dept'));
-            $('#edit_cat').val(button.data('cat'));
-            $('#edit_amt').val(button.data('amt'));
-            $('#edit_avail').val(button.data('avail'));
-            $('#edit_start').val(button.data('start'));
-            $('#edit_end').val(button.data('end'));
-        });
-        </script>
-        <script>
-        $('#edituser').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-
-            $('#edit_id').val(button.data('id'));
-            $('#edit_name').val(button.data('name'));
-            $('#edit_email').val(button.data('email'));
-            $('#edit_role').val(button.data('role'));
-            $('#edit_status').val(button.data('status'));
-        });
-        </script>
     </body>
 </html>
