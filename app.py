@@ -328,18 +328,76 @@ def viewpoli():
     try:
         cursor.execute("""
             SELECT p.poli_id,
-                   p.poli_type,
+                   p.cat_id,
                    c.cat_name,
+                   p.poli_type,
                    p.rule_value,
-                   p.poli_desc
+                   p.poli_desc,
+                   p.created_at
             FROM eerm_poli p
             JOIN eerm_expcat c ON p.cat_id = c.cat_id
         """)
         policies = cursor.fetchall()
-        return render_template('admin/admin_viewpoli.html', policies=policies)
+        cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
+        categories = cursor.fetchall()
+        return render_template('admin/admin_viewpoli.html', policies=policies, categories=categories)
     except Exception as e:
         print("Error fetching policies:", e)
         return "Error fetching policies"
+    finally:
+        cursor.close()
+
+@app.route('/update_policy', methods=['POST'])
+@login_required
+def update_policy():
+    cursor = conn.cursor()
+    try:
+        poli_id = request.form['poli_id']
+        poli_type = request.form['poli_type']
+        exp_cat = request.form['exp_cat']
+        poli_rule = request.form['poli_rule']
+        poli_desc = request.form['poli_desc']
+
+        cursor.execute("""
+            UPDATE eerm_poli SET 
+                poli_type=%s, 
+                cat_id=%s, 
+                rule_value=%s, 
+                poli_desc=%s
+            WHERE poli_id=%s
+        """, (poli_type, exp_cat, poli_rule, poli_desc, poli_id))
+
+        add_log(
+            session.get("admin_id"),
+            "UPDATE",
+            "POLICY",
+            poli_id,
+            f"Updated policy with ID {poli_id}"
+        )
+
+        conn.commit()
+        return redirect(url_for('viewpoli'))
+    except Exception as e:
+        print("Error updating policy:", e)
+        return "Error updating policy"
+    finally:
+        cursor.close()
+
+@app.route('/delete_policy/<int:poli_id>')
+@login_required
+def delete_policy(poli_id):
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM eerm_poli WHERE poli_id=%s", (poli_id,))
+        add_log(
+            session.get("admin_id"),
+            "DELETE",
+            "POLICY",
+            poli_id,
+            f"Deleted policy with ID {poli_id}"
+        )
+        conn.commit()
+        return redirect(url_for('viewpoli'))
     finally:
         cursor.close()
 

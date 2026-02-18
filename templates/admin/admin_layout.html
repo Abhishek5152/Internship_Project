@@ -299,5 +299,16 @@
             $('#edit_status').val(button.data('status'));
         });
         </script>
+        <script>
+        $('#editpoli').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+
+            $('#edit_id').val(button.data('id'));
+            $('#edit_type').val(button.data('type'));
+            $('#edit_cat').val(button.data('cat'));
+            $('#edit_rule').val(button.data('rule'));
+            $('#edit_desc').val(button.data('desc'));
+        });
+        </script>
     </body>
 </html>

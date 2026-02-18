@@ -27,6 +27,7 @@
                                 <tr>
                                 <th>ID</th>
                                 <th>Category</th>
+                                <th>Category Name</th>
                                 <th>Policy Type</th>
                                 <th>Rule Value</th>
                                 <th>Description</th>
@@ -36,15 +37,29 @@
                                 {% for poli in policies %}
                                 <tr>
                                     <td>{{ poli[0] }}</td>  <!-- ID -->
-                                    <td>{{ poli[1] }}</td>  <!-- Cate -->
-                                    <td>{{ poli[2] }}</td>  <!-- Category -->
-                                    <td>{% if poli[3]|float %}
-                                            {{ "{:,}".format(poli[3]|int) }}
+                                    <td>{{ poli[1] }}</td>  <!-- Category ID -->
+                                    <td>{{ poli[2] }}</td>  <!-- Category Name -->
+                                    <td>{{ poli[3] }}</td>  <!-- Policy Type -->
+                                    <td>{% if poli[4]|float %}
+                                            {{ "{:,}".format(poli[4]|int) }}
                                         {% else %}
-                                            {{ poli[3] }}
+                                            {{ poli[4] }}
                                         {% endif %}
                                     </td>  <!-- Rule Value -->
-                                    <td>{{ poli[4] }}</td>  <!-- Description -->
+                                    <td>{{ poli[5] }}</td>  <!-- Description -->
+                                    <td>{{ poli[6] }}</td>  <!-- Created at -->
+                                    <td>
+                                        <button class="btn btn-sm btn-primary"
+                                                data-toggle="modal"
+                                                data-target="#editpoli"
+                                                data-id="{{ poli[0] }}"
+                                                data-cat="{{ poli[1] }}"
+                                                data-type="{{ poli[3] }}"
+                                                data-rule="{{ poli[4] }}"
+                                                data-desc="{{ poli[5] }}">Edit
+                                        </button>
+                                        <a href="{{ url_for('delete_policy', poli_id=poli[0]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this policy?');">Delete</a>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -56,4 +71,61 @@
                     </div>
                 </div>
                 </section>
+                <!-- Edit Policy Modal -->
+                <div class="modal fade" id="editpoli" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <form method="POST" action="{{ url_for('update_policy') }}">
+                        <div class="modal-header">
+                        <h5 class="modal-title">Edit Policy</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+
+                        <input type="hidden" name="poli_id" id="edit_id">
+
+                        <div class="form-group">
+                            <label>Policy Type</label>
+                            <select class="form-control" name="poli_type" id="edit_type" required data-msg ="Please select a policy type">
+                                <option value="">Select Policy Type</option>
+                                <option value="MAX_AMOUNT">Max Amount</option>
+                                <option value="DAILY_LIMIT">Daily Limit</option>
+                                <option value="APPROVAL_REQUIRED">Approval Required</option>
+                                <option value="AUTO_REJECT_LIMIT">Auto Reject Limit</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select class="form-control" name="exp_cat" id="edit_cat" required data-msg ="Please select a policy category">
+                                <option value="">Select Policy Category</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat[0] }}">{{ cat[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Rule Value</label>
+                            <div id="rule_value_container">
+                                <input type="text" name="poli_rule" id="edit_rule" placeholder="Enter Rule Value" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" name="poli_desc" id="edit_desc" class="form-control" required>
+                        </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Update</button>
+                        </div>
+
+                    </form>
+                    </div>
+                </div>
+                </div>
 {% endblock %}
