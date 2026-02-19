@@ -38,7 +38,7 @@
               <div class="info d-flex align-items-center">
                 <div class="content">
                   <div class="logo">
-                    <h1>Admin Login</h1>
+                    <h1><a id="Link" href="{{ url_for('user_login') }}">Admin</a> Login</h1>
                   </div>
                   <p>Enterprise Expense & Resource Management System</p>
                 </div>
@@ -56,8 +56,10 @@
                     <div class="form-group">
                       <input id="login-password" type="password" name="admin_pass" required data-msg="Please enter your password" class="input-material">
                       <label for="login-password" class="label-material">Password</label>
-                    </div><input type="submit" value="Login" class="btn btn-primary">
-                  </form><a href="/user_login" class="forgot-pass">Are you a User?</a>
+                    </div>
+                    <div class="form-group text-center">
+                      <input type="submit" value="Login" class="btn btn-primary">
+                    </div>
                 </div>
               </div>
             </div>

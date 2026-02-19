@@ -543,6 +543,52 @@ def admin_login():
         cursor.close()
         return "Error during login"
     
+@app.route('/user_register')
+def user_register():
+    return render_template('user_register.html')
+
+@app.route('/register_user', methods=['POST'])
+def register_user():
+    cursor = conn.cursor()
+    try:
+        reg_name = request.form['reg_name']
+        reg_email = request.form['reg_email']
+        reg_pass = request.form['reg_pass']
+
+        if not reg_name or not reg_email or not reg_pass:
+            msg = "All fields are required"
+            return redirect(url_for('user_register', msg=msg))
+
+        cursor.execute("SELECT * FROM eerm_users WHERE user_email = %s", (reg_email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            msg = "Email already registered"
+            return redirect(url_for('user_register', msg=msg))
+
+        cursor.execute("""
+            INSERT INTO eerm_users (user_name, user_email, user_pass, user_role, user_status)
+            VALUES (%s, %s, %s, 'Employee', 'Active')
+        """, (reg_name, reg_email, reg_pass))
+        conn.commit()
+
+        add_log(
+            cursor.lastrowid,
+            "REGISTER",
+            "USER",
+            cursor.lastrowid,
+            f"New user registered with email {reg_email}"
+        )
+
+        msg = "Registration successful! Please log in."
+        return redirect(url_for('user_login', msg=msg))
+    except Exception as e:
+        print("Error during registration:", e)
+        return "Error during registration"
+    finally:
+        cursor.close()
+
+
 @app.route('/user_login')
 def user_login():
     return render_template('user_login.html')

@@ -10,3 +10,8 @@ input[type=number] {
     appearance: textfield;
 }
 /* Custom styles for admin panel */
+
+#Link {
+    color: #000000;
+    text-decoration: none;
+}
