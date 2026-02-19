@@ -178,34 +178,12 @@
         </div>
         <!-- Sidebar Navidation Menus--><span class="heading">Main</span>
         <ul class="list-unstyled">
-            <li class="{% if request.path == '/dashboard' %}active{% endif %}">
-            <a href="/dashboard"> <i class="icon-home"></i>Home </a></li>
-            <li><a href="#ManageResources" data-toggle="collapse" aria-expanded="{% if request.path in ['/addres','/viewres'] %}true{% else %}false{% endif %}"
-            class="{% if request.path in ['/addres','/viewres'] %}{% else %}collapsed{% endif %}">
-            <i class="fa fa-cubes"></i>Resources</a>
-                <ul id="ManageResources" class="collapse list-unstyled {% if request.path in ['/addres','/viewres'] %}show{% endif %}">            
-                <li class="{% if request.path == '/addres' %}active{% endif %}"><a href="/addres">Add Resource</a></li>
-                <li class="{% if request.path == '/viewres' %}active{% endif %}"><a href="/viewres">View Resources</a></li>
-                </ul>
-            </li>
-            <li><a href="#Managebudget" data-toggle="collapse" aria-expanded="{% if request.path in ['/addbgt','/viewbgt'] %}true{% else %}false{% endif %}"
-            class="{% if request.path in ['/addbgt','/viewbgt'] %}{% else %}collapsed{% endif %}">
-            <i class="fa fa-money"></i>Budget</a>
-                <ul id="Managebudget" class="collapse list-unstyled {% if request.path in ['/addbgt','/viewbgt'] %}show{% endif %}">
-                <li class="{% if request.path == '/addbgt' %}active{% endif %}"><a href="/addbgt">Add Budget</a></li>
-                <li class="{% if request.path == '/viewbgt' %}active{% endif %}"><a href="/viewbgt">View Budget</a></li>
-                </ul>
-            </li>
-            <li><a href="#Managepolicies" data-toggle="collapse" aria-expanded="{% if request.path in ['/addpoli','/viewpoli'] %}true{% else %}false{% endif %}"
-            class="{% if request.path in ['/addpoli','/viewpoli'] %}{% else %}collapsed{% endif %}">
-            <i class="fa fa-file-text"></i>Policies</a>
-                <ul id="Managepolicies" class="collapse list-unstyled {% if request.path in ['/addpoli','/viewpoli'] %}show{% endif %}">
-                <li class="{% if request.path == '/addpoli' %}active{% endif %}"><a href="/addpoli">Add Policies</a></li>
-                <li class="{% if request.path == '/viewpoli' %}active{% endif %}"><a href="/viewpoli">View Policies</a></li>
-                </ul>
-            </li>
-            <li><a href="/viewlogs"> <i class="icon-padnote"></i>Audit Logs </a></li>
-            <li><a href="/"> <i class="icon-logout"></i>Logout </a></li>
+            <li class="{% if request.path == '/mandash' %}active{% endif %}">
+            <a href="/mandash"> <i class="icon-home"></i>Home </a></li>
+        </ul>
+        <ul class="list-unstyled">
+            <li class="{% if request.path == '/manusers-m' %}active{% endif %}">
+            <a href="/manusers-m"> <i class="icon-user"></i>Manage Users </a></li>
         </ul>
         </nav>
         <!-- Sidebar Navigation end-->

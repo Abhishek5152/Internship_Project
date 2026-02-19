@@ -1,0 +1,63 @@
+{% extends "manager/man_layout.html" %}
+
+{% block content %}
+            <div class="page-content">
+                <!-- Page Header-->
+                <div class="page-header no-margin-bottom">
+                <div class="container-fluid">
+                    <h2 class="h5 no-margin-bottom">Manage Users</h2>
+                </div>
+                </div>
+                <!-- Breadcrumb-->
+                <div class="container-fluid">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/mandash">Home</a></li>
+                    <li class="breadcrumb-item active">Manage Users</li>
+                </ul>
+                </div>
+                <section class="no-padding-top">
+                <div class="container-fluid">
+                    <div class="row">
+                    <div class="col-lg-12">
+                        <div class="block">
+                        <div class="title"><strong>Users</strong></div>
+                        <div class="table-responsive"> 
+                            <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>created At</th>
+                                <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user[0] }}</td>  <!-- ID -->
+                                    <td>{{ user[1] }}</td>  <!-- Name -->
+                                    <td>{{ user[2] }}</td>  <!-- Email -->
+                                    <td>{{ user[4] }}</td>  <!-- Role -->
+                                    <td>{{ user[6].strftime('%d-%m-%Y') }}</td>  <!-- Created At -->
+                                    <td>
+                                        <form method="post" action="{{ url_for('toggle_user_status', user_id=user[0]) }}">
+                                            <button type="submit"
+                                                    class="btn btn-sm {% if user[5] == 'Inactive' %}btn-danger{% else %}btn-success{% endif %}">
+                                                {{ user[5] }}
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                    </div>
+                </div>
+                </section>
+{% endblock %}
