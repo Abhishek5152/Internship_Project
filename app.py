@@ -546,7 +546,7 @@ def admin_login():
     
 @app.route('/user_register')
 def user_register():
-    return render_template('user_register.html')
+    return render_template('global_user/user_register.html')
 
 @app.route('/register_user', methods=['POST'])
 def register_user():
@@ -592,7 +592,7 @@ def register_user():
 
 @app.route('/user_login')
 def user_login():
-    return render_template('user_login.html')
+    return render_template('global_user/user_login.html')
 
 @app.route('/userlogin', methods=['POST'])
 def userlogin():
