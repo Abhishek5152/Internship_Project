@@ -11,7 +11,7 @@
                 <!-- Breadcrumb-->
                 <div class="container-fluid">
                 <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/mandash">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('manager.mandash') }}">Home</a></li>
                     <li class="breadcrumb-item active">Manage Users</li>
                 </ul>
                 </div>
@@ -42,7 +42,7 @@
                                     <td>{{ user[4] }}</td>  <!-- Role -->
                                     <td>{{ user[6].strftime('%d-%m-%Y') }}</td>  <!-- Created At -->
                                     <td>
-                                        <form method="post" action="{{ url_for('toggle_user_status', user_id=user[0]) }}">
+                                        <form method="post" action="{{ url_for('manager.toggle_user_status', user_id=user[0]) }}">
                                             <button type="submit"
                                                     class="btn btn-sm {% if user[5] == 'Inactive' %}btn-danger{% else %}btn-success{% endif %}">
                                                 {{ user[5] }}

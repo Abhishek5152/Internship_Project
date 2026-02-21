@@ -14,7 +14,7 @@
                 <!-- Breadcrumb-->
                 <div class="container-fluid">
                 <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Home</a></li>
                     <li class="breadcrumb-item active">Add Resources</li>
                 </ul>
                 </div>
@@ -26,7 +26,7 @@
                             <div class="block">
                             <!-- <div class="title"><strong class="d-block">Category Form</strong></div> -->
                             <div class="block-body">
-                                <form method="post" action="{{ url_for('add_resource') }}">
+                                <form method="post" action="{{ url_for('admin.add_resource') }}">
                                 <div class="form-group">
                                     <label class="form-control-label">Resource Name</label>
                                     <input type="text" name="res_name" placeholder="Resource Name" class="form-control" required data-msg="Please enter the resource name">

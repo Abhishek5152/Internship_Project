@@ -11,7 +11,7 @@
                 <!-- Breadcrumb-->
                 <div class="container-fluid">
                 <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Home</a></li>
                     <li class="breadcrumb-item active">Resources</li>
                 </ul>
                 </div>
@@ -45,7 +45,7 @@
                                     <td>{{ res[4] }}</td>  <!-- Description -->
                                     <td>{{ res[5] }}</td>  <!-- Status -->
                                     <td>
-                                        <form method="post" action="{{ url_for('toggle_resource_status', res_id=res[0]) }}">
+                                        <form method="post" action="{{ url_for('admin.toggle_resource_status', res_id=res[0]) }}">
                                             <button type="submit"
                                                     class="btn btn-sm {% if res[6] == 'Retired' %}btn-danger{% else %}btn-success{% endif %}">
                                                 {{ res[6] }}
@@ -53,7 +53,7 @@
                                         </form>
                                     </td>
                                     <!-- Expiry status -->
-                                    <td>{{ res[7] }}</td>  <!-- Created at -->
+                                    <td>{{ res[7].strftime("%d-%m-%Y %H:%M") }}</td>  <!-- Created at -->
                                 </tr>
                                 {% endfor %}
                             </tbody>

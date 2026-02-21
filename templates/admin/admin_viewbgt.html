@@ -11,7 +11,7 @@
                 <!-- Breadcrumb-->
                 <div class="container-fluid">
                 <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Home</a></li>
                     <li class="breadcrumb-item active">Budget</li>
                 </ul>
                 </div>
@@ -58,7 +58,7 @@
                                                 data-start="{{ bgt[6] }}"
                                                 data-end="{{ bgt[7] }}">Edit
                                         </button>
-                                        <a href="{{ url_for('delete_budget', budget_id=bgt[0]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this budget?');">Delete</a>
+                                        <a href="{{ url_for('admin.delete_budget', budget_id=bgt[0]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this budget?');">Delete</a>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -75,7 +75,7 @@
                 <div class="modal fade" id="editModal" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                    <form method="POST" action="{{ url_for('update_budget') }}">
+                    <form method="POST" action="{{ url_for('admin.update_budget') }}">
                         <div class="modal-header">
                         <h5 class="modal-title">Edit Budget</h5>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>

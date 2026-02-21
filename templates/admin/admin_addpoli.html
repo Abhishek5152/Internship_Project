@@ -14,7 +14,7 @@
                 <!-- Breadcrumb-->
                 <div class="container-fluid">
                 <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Home</a></li>
                     <li class="breadcrumb-item active">Add Policy</li>
                 </ul>
                 </div>
@@ -25,7 +25,7 @@
                         <div class="col-lg-6">
                             <div class="block">
                             <div class="block-body">
-                                <form method="post" action="{{ url_for('add_policy') }}">
+                                <form method="post" action="{{ url_for('admin.add_policy') }}">
                                 <div class="form-group">
                                     <label class="form-control-label">Policy Type</label>
                                     <select class="form-control" name="poli_type" id="poli_type" required data-msg ="Please select a policy type">
