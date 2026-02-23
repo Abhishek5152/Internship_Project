@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, url_for, redirect
 from flask_session import Session
 
 from blueprints.admin import admin_bp
@@ -16,6 +16,10 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(man_bp)
 app.register_blueprint(emp_bp)
 app.register_blueprint(auth_bp)
+
+@app.route('/')
+def home():
+    return redirect(url_for('auth.user_login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
