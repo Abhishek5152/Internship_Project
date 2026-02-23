@@ -1,0 +1,67 @@
+{% extends "manager/man_layout.html" %}
+
+{% block content %}
+            <div class="page-content">
+                <!-- Page Header-->
+                <div class="page-header no-margin-bottom">
+                <div class="container-fluid">
+                    <h2 class="h5 no-margin-bottom">Requests</h2>
+                </div>
+                </div>
+                <!-- Breadcrumb-->
+                <div class="container-fluid">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('manager.mandash') }}">Home</a></li>
+                    <li class="breadcrumb-item active">Requests</li>
+                </ul>
+                </div>
+                <section class="no-padding-top">
+                <div class="container-fluid">
+                    <div class="row">
+                    <div class="col-lg-12">
+                        <div class="block">
+                        <div class="title"><strong>Requests</strong></div>
+                        <div class="table-responsive"> 
+                            <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                <th>Req ID</th>
+                                <th>Requester ID</th>
+                                <th>Requester name</th>
+                                <th>Res ID</th>
+                                <th>Resource</th>
+                                <th>Request Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for req in requests %}
+                                <tr>
+                                    <td>{{ req[0] }}</td>  <!-- ID -->
+                                    <td>{{ req[1] }}</td>  <!-- Requester ID -->
+                                    <td>{{ req[2] }}</td>  <!-- Requester -->
+                                    <td>{{ req[3] }}</td>  <!-- Resource ID -->
+                                    <td>{{ req[4] }}</td>  <!-- Resource -->
+                                    <td>{{ req[5].strftime('%d-%m-%Y') }}</td>  <!-- Request Date -->
+                                    <td>{{ req[6] }}</td>  <!-- Status -->
+                                    <td>
+                                        <form method="post" action="{{ url_for('manager.reqapprove', req_id=req[0]) }}">
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                        <form method="post" action="{{ url_for('manager.reqreject', req_id=req[0]) }}">
+                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                    </div>
+                </div>
+                </section>
+{% endblock %}

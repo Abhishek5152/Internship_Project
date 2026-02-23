@@ -62,3 +62,95 @@ def toggle_user_status(user_id):
 
     finally:
         cursor.close()
+
+@man_bp.route('/viewreq')
+@login_required
+def viewreq():
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT r.req_id,
+                   r.user_id,
+                   u.user_name,
+                   r.res_id,
+                   c.res_name,
+                   r.req_date,
+                   r.req_status
+            FROM eerm_req r 
+            JOIN eerm_users u ON r.user_id = u.user_id
+            JOIN eerm_res c ON r.res_id = c.res_id
+            where r.req_status = 'Pending'
+        """)
+        requests = cursor.fetchall()
+        return render_template('manager/man_viewreq.html', requests=requests)
+    except Exception as e:
+        print("Error fetching requests:", e)
+        return "Error fetching requests"
+    finally:
+        cursor.close()
+
+@man_bp.route('/reqapprove/<int:req_id>', methods=['POST'])
+@login_required
+def reqapprove(req_id):
+    cursor = conn.cursor()
+    try:
+        cursor.execute("UPDATE eerm_req SET req_status = 'Approved' WHERE req_id = %s", (req_id,))
+        conn.commit()
+        add_log(
+            session.get("user_id"),
+            "APPROVE",
+            "REQUEST",
+            req_id,
+            f"Approved request with ID {req_id}"
+        )
+        return redirect(url_for('manager.viewreq'))
+    except Exception as e:
+        print("Error approving request:", e)
+        return "Error approving request"
+    finally:
+        cursor.close()
+
+@man_bp.route('/reqreject/<int:req_id>', methods=['POST'])
+@login_required
+def reqreject(req_id):
+    cursor = conn.cursor()
+    try:
+        cursor.execute("UPDATE eerm_req SET req_status = 'Rejected' WHERE req_id = %s", (req_id,))
+        conn.commit()
+        add_log(
+            session.get("user_id"),
+            "REJECT",
+            "REQUEST",
+            req_id,
+            f"Rejected request with ID {req_id}"
+        )
+        return redirect(url_for('manager.viewreq'))
+    except Exception as e:
+        print("Error rejecting request:", e)
+        return "Error rejecting request"
+    finally:
+        cursor.close()
+
+@man_bp.route('/reqhistory')
+@login_required
+def reqhistory():
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT r.req_id,
+                   r.user_id,
+                   u.user_name,
+                   r.res_id,
+                   c.res_name,
+                   r.req_date,
+                   r.req_status
+            FROM eerm_req r 
+            JOIN eerm_users u ON r.user_id = u.user_id
+            JOIN eerm_res c ON r.res_id = c.res_id
+            where r.req_status != 'Pending'
+        """)
+        requests = cursor.fetchall()
+        return render_template('manager/man_reqhistory.html', requests=requests)
+    except Exception as e:
+        print("Error fetching request history:", e)
+        return "Error fetching request history"

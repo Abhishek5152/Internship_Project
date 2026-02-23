@@ -116,8 +116,10 @@
         <ul class="list-unstyled">
             <li class="{% if request.path == url_for('manager.mandash') %}active{% endif %}">
             <a href="{{ url_for('manager.mandash') }}"> <i class="icon-home"></i>Home </a></li>
-            <li class="#">
-            <a href="#"> <i class="icon-padnote"></i>View Requests </a></li>
+            <li class="{% if request.path == url_for('manager.viewreq') %}active{% endif %}">
+            <a href="{{ url_for('manager.viewreq') }}"> <i class="icon-padnote"></i>View Requests </a></li>
+            <li class="{% if request.path == url_for('manager.reqhistory') %}active{% endif %}">
+            <a href="{{ url_for('manager.reqhistory') }}"> <i class="icon-list"></i>Request History </a></li>
             <li class="{% if request.path == url_for('manager.manusers_m') %}active{% endif %}">
             <a href="{{ url_for('manager.manusers_m') }}"> <i class="icon-user"></i>Manage Users </a></li>
             <li><a href="{{ url_for('auth.user_login') }}"> <i class="icon-logout"></i>Logout </a></li>
