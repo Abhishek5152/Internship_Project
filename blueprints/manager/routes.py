@@ -53,8 +53,8 @@ def toggle_user_status(user_id):
             f"Changed user status to {new_status}"
         )
 
-
-        return redirect(url_for('manager.manusers_m'))
+        msg = f"User status changed to {new_status}"
+        return redirect(url_for('manager.manusers_m', msg=msg))
 
     except Exception as e:
         print("Error toggling user status:", e)
@@ -95,6 +95,15 @@ def reqapprove(req_id):
     cursor = conn.cursor()
     try:
         cursor.execute("UPDATE eerm_req SET req_status = 'Approved' WHERE req_id = %s", (req_id,))
+        cursor.execute("""
+            INSERT INTO eerm_alloc (res_id, user_id, alloc_date, ret_date)
+            SELECT res_id, 
+            user_id, 
+            NOW(), 
+            DATE_ADD(NOW(), INTERVAL 30 DAY)
+            FROM eerm_req 
+            WHERE req_id = %s
+        """, (req_id,))
         conn.commit()
         add_log(
             session.get("user_id"),
@@ -103,7 +112,8 @@ def reqapprove(req_id):
             req_id,
             f"Approved request with ID {req_id}"
         )
-        return redirect(url_for('manager.viewreq'))
+        msg = "Request approved successfully"
+        return redirect(url_for('manager.viewreq', msg=msg))
     except Exception as e:
         print("Error approving request:", e)
         return "Error approving request"
@@ -124,7 +134,8 @@ def reqreject(req_id):
             req_id,
             f"Rejected request with ID {req_id}"
         )
-        return redirect(url_for('manager.viewreq'))
+        msg = "Request rejected successfully"
+        return redirect(url_for('manager.viewreq', msg=msg))
     except Exception as e:
         print("Error rejecting request:", e)
         return "Error rejecting request"

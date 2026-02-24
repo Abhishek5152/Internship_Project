@@ -55,7 +55,8 @@ def add_resource():
         )
 
         conn.commit()
-        return redirect(url_for('admin.addres'))
+        msg = "Resource added successfully"
+        return redirect(url_for('admin.viewres', msg=msg))
 
     except Exception as e:
         print("Error adding resource:", e)
@@ -109,8 +110,8 @@ def toggle_resource_status(res_id):
             f"Changed resource status to {new_status}"
         )
 
-
-        return redirect(url_for('admin.viewres'))
+        msg = "Resource status updated successfully"
+        return redirect(url_for('admin.viewres', msg=msg))
 
     except Exception as e:
         print("Error toggling resource status:", e)
@@ -165,7 +166,8 @@ def add_budget():
 
 
         conn.commit()
-        return redirect(url_for('admin.addbgt'))
+        msg = "Budget added successfully"
+        return redirect(url_for('admin.viewbgt', msg=msg))
     except Exception as e:
         print("Error adding budget:", e)
         return "Error adding budget"
@@ -234,7 +236,8 @@ def update_budget():
 
 
         conn.commit()
-        return redirect(url_for('admin.view_budget'))
+        msg = "Budget updated successfully"
+        return redirect(url_for('admin.viewbgt', msg=msg))
 
     finally:
         cursor.close()
@@ -253,7 +256,8 @@ def delete_budget(budget_id):
             f"Deleted budget with ID {budget_id}"
         )
         conn.commit()
-        return redirect(url_for('admin.view_budget'))
+        msg = "Budget deleted successfully"
+        return redirect(url_for('admin.viewbgt', msg=msg))
     finally:
         cursor.close()
 
@@ -299,7 +303,8 @@ def add_policy():
         )
 
         conn.commit()
-        return redirect(url_for('admin.addpoli'))
+        msg = "Policy added successfully"
+        return redirect(url_for('admin.viewpoli', msg=msg))
     except Exception as e:
         print("Error adding policy:", e)
         return "Error adding policy"
@@ -361,7 +366,8 @@ def update_policy():
         )
 
         conn.commit()
-        return redirect(url_for('admin.viewpoli'))
+        msg = "Policy updated successfully"
+        return redirect(url_for('admin.viewpoli', msg=msg))
     except Exception as e:
         print("Error updating policy:", e)
         return "Error updating policy"
@@ -382,7 +388,8 @@ def delete_policy(poli_id):
             f"Deleted policy with ID {poli_id}"
         )
         conn.commit()
-        return redirect(url_for('admin.viewpoli'))
+        msg = "Policy deleted successfully"
+        return redirect(url_for('admin.viewpoli', msg=msg))
     finally:
         cursor.close()
 
@@ -430,7 +437,8 @@ def update_user():
         )
 
         conn.commit()
-        return redirect(url_for('admin.manusers'))
+        msg = "User updated successfully"
+        return redirect(url_for('admin.manusers', msg=msg))
     except Exception as e:
         print("Error updating user:", e)
         return "Error updating user"
@@ -451,7 +459,8 @@ def delete_user(user_id):
             f"Deleted User ID {user_id}"
         )
         conn.commit()
-        return redirect(url_for('admin.manusers'))
+        msg = "User deleted successfully"
+        return redirect(url_for('admin.manusers', msg=msg))
     except Exception as e:
         print("Error deleting user:", e)
         return "Error deleting user"

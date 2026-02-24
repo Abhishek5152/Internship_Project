@@ -32,7 +32,6 @@
                                 <th>Resource</th>
                                 <th>Request Date</th>
                                 <th>Status</th>
-                                <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -46,10 +45,10 @@
                                     <td>{{ req[5].strftime('%d-%m-%Y') }}</td>  <!-- Request Date -->
                                     <td>{{ req[6] }}</td>  <!-- Status -->
                                     <td>
-                                        <form method="post" action="{{ url_for('manager.reqapprove', req_id=req[0]) }}">
+                                        <form method="post" class="d-inline" action="{{ url_for('manager.reqapprove', req_id=req[0]) }}">
                                             <button type="submit" class="btn btn-sm btn-success">Approve</button>
                                         </form>
-                                        <form method="post" action="{{ url_for('manager.reqreject', req_id=req[0]) }}">
+                                        <form method="post" class="d-inline" action="{{ url_for('manager.reqreject', req_id=req[0]) }}">
                                             <button type="submit" class="btn btn-sm btn-danger">Reject</button>
                                         </form>
                                     </td>
