@@ -21,17 +21,17 @@ def admin_login():
         admin = cursor.fetchone()
         cursor.close()
         if admin:
-            session["admin_id"] = admin[0]
-            session["admin_email"] = admin[1]
-            session["admin_role"] = 'Admin'
+            session["user_id"] = admin[0]
+            session["user_email"] = admin[1]
+            session["user_role"] = admin[4]
 
             msg = "Login successful!"
 
             add_log(
-            session.get("admin_id"),
+            session.get("user_id"),
             "LOGIN",
-            "ADMIN",
-            session.get("admin_id"),
+            "Admin",
+            session.get("user_id"),
             f"Admin logged in successfully"
         )
 
@@ -134,3 +134,17 @@ def userlogin():
         print("Error during login:", e)
         cursor.close()
         return "Error during login"
+
+@auth_bp.route('/logout')
+def logout():   
+    user_id = session.get("user_id")
+    if user_id:
+        add_log(
+            user_id,
+            "LOGOUT",
+            "USER",
+            user_id,
+            f"User logged out successfully"
+        )
+    session.clear()
+    return redirect(url_for('auth.user_login'))
