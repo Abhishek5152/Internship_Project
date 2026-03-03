@@ -39,9 +39,9 @@
                                     <td>{{ user[0] }}</td>  <!-- ID -->
                                     <td>{{ user[1] }}</td>  <!-- Name -->
                                     <td>{{ user[2] }}</td>  <!-- Email -->
-                                    <td>{{ user[4] }}</td>  <!-- Role -->
-                                    <td>{{ user[5] }}</td>  <!-- Status -->
-                                    <td>{{ user[6].strftime('%d-%m-%Y %H:%M') }}</td>  <!-- Created At -->
+                                    <td>{{ user[3] }}</td>  <!-- Role -->
+                                    <td>{{ user[4] }}</td>  <!-- Status -->
+                                    <td>{{ user[5].strftime('%d-%m-%Y %H:%M') }}</td>  <!-- Created At -->
                                     <td>
                                         <button class="btn btn-sm btn-primary"
                                                 data-toggle="modal"
@@ -49,10 +49,10 @@
                                                 data-id="{{ user[0] }}"
                                                 data-name="{{ user[1] }}"
                                                 data-email="{{ user[2] }}"
-                                                data-role="{{ user[4] }}"
-                                                data-status="{{ user[5] }}">Edit
+                                                data-role="{{ user[3] }}"
+                                                data-status="{{ user[4] }}">
+                                            Edit
                                         </button>
-                                        <a href="{{ url_for('admin.delete_user', user_id=user[0]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -100,11 +100,13 @@
 
                         <div class="form-group">
                             <label>Status</label>
-                            <select class="form-control" name="user_status" id="edit_status" required>
+                            <select class="form-control" name="user_status" id="edit_status" required data-msg ="Please select a user status">
+                                <option value="">Select User Status</option>
                                 <option value="Active">Active</option>
                                 <option value="Inactive">Inactive</option>
                             </select>
                         </div>
+
                         </div>
                         <div class="modal-footer">
                         <button type="submit" class="btn btn-success">Update</button>

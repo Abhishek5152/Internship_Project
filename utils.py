@@ -1,8 +1,6 @@
 from flask import session, redirect, url_for
 from functools import wraps
-from database import get_db_connection
 
-conn = get_db_connection()
 
 def login_required(f):
     @wraps(f)
@@ -13,7 +11,7 @@ def login_required(f):
     return decorated_function
 
 
-def add_log(user_id, action_type, entity_type, entity_id, description):
+def add_log(conn, user_id, action_type, entity_type, entity_id, description):
     cursor = conn.cursor()
     try:
         cursor.execute("""
@@ -21,6 +19,5 @@ def add_log(user_id, action_type, entity_type, entity_id, description):
             (user_id, action, entity, entity_id, log_desc)
             VALUES (%s, %s, %s, %s, %s)
         """, (user_id, action_type, entity_type, entity_id, description))
-        conn.commit()
     finally:
         cursor.close()

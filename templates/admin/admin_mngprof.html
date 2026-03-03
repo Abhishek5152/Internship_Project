@@ -1,0 +1,157 @@
+{% extends "admin/admin_layout.html" %}
+
+{% block content %}
+            <div class="page-content">
+                <!-- Page Header-->
+                <div class="page-header no-margin-bottom">
+                <div class="container-fluid">
+                    <h2 class="h5 no-margin-bottom">Profile</h2>
+                </div>
+                </div>
+                <!-- Breadcrumb-->
+                <div class="container-fluid">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item active">Profile</li>
+                </ul>
+                </div>
+                <section class="no-padding-top">
+                <div class="container-fluid">
+                    <div class="row">
+                    <div class="col-lg-12">
+                        <div class="block">
+                        <div class="title d-flex justify-content-between align-items-center">
+                            <strong>My Profile</strong>
+                            <button class="btn btn-sm btn-primary" data-toggle="modal" 
+                            data-target="#editprof"
+                            data-id="{{ user_data[0] }}"
+                            data-name="{{ user_data[1] }}"
+                            data-contact="{{ user_data[3] }}"
+                            data-address="{{ user_data[4] }}"
+                            data-about="{{ user_data[5] }}"
+                            
+                            >Edit Profile</button>
+                        </div>
+                            <div class="row align-items-center">
+    
+                                <div class="col-md-4 text-center">
+                                    <form data-toggle="modal" data-target="#editimg" enctype="multipart/form-data">
+
+                                        <label for="photoInput">
+                                            {% if user_data[6] %}
+                                                <img src="{{ user_data[6] }}"
+                                                    class="img-fluid rounded-circle mb-3"
+                                                    style="max-width:200px;">
+                                            {% else %}
+                                                <img src="{{ url_for('static', filename='global/img/avatar-x.jpg') }}"
+                                                    class="img-fluid rounded-circle mb-3"
+                                                    style="max-width:200px;">
+                                            {% endif %}
+                                        </label>
+                                    </form>
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="mb-3 d-flex">
+                                        <div class="me-3" style="min-width:120px;"><strong>Name:</strong></div>
+                                        <div>{{ user_data[1] }}</div>
+                                    </div>
+
+                                    <div class="mb-3 d-flex">
+                                        <div class="me-3" style="min-width:120px;"><strong>Email:</strong></div>
+                                        <div>{{ user_data[2] }}</div>
+                                    </div>
+
+                                    <div class="mb-3 d-flex">
+                                        <div class="me-3" style="min-width:120px;"><strong>Contact:</strong></div>
+                                        <div>{{ user_data[3] }}</div>
+                                    </div>
+
+                                    <div class="mb-3 d-flex">
+                                        <div class="me-3" style="min-width:120px;"><strong>Address:</strong></div>
+                                        <div>{{ user_data[4] }}</div>
+                                    </div>
+
+                                    <div class="mb-3 d-flex">
+                                        <div class="me-3" style="min-width:120px;"><strong>About:</strong></div>
+                                        <div>{{ user_data[5] }}</div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    </div>
+                </div>
+                </section>
+                <!-- Edit Budget Modal -->
+                <div class="modal fade" id="editprof" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <form method="POST" action="{{ url_for('admin.edit_profile') }}">
+                        <div class="modal-header">
+                        <h5 class="modal-title">Edit Profile</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" name="user_name" id="edit_user_name" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Contact</label>
+                            <input type="number" name="user_contact" id="edit_user_contact" class="form-control" maxlength="10" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input type="text" name="user_address" id="edit_user_address" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>About</label>
+                            <input type="text" name="user_about" id="edit_user_about" class="form-control" required>
+                        </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Update</button>
+                        </div>
+
+                    </form>
+                    </div>
+                </div>
+                </div>
+                <!-- Edit Image Modal -->
+                <div class="modal fade" id="editimg" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <form method="POST" action="{{ url_for('admin.upload_profile_photo') }}" enctype="multipart/form-data">
+                        <div class="modal-header">
+                        <h5 class="modal-title">Change Profile Photo</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+
+                        <div class="form-group">
+                            <label>Choose New Photo</label>
+                            <input type="file" id="photoInput" name="photo" class="form-control-file" accept="image/png, image/jpeg" required>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-success">Upload</button>
+                        </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+                </div>
+
+{% endblock %}

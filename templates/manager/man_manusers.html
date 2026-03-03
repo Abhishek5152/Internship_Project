@@ -39,8 +39,8 @@
                                     <td>{{ user[0] }}</td>  <!-- ID -->
                                     <td>{{ user[1] }}</td>  <!-- Name -->
                                     <td>{{ user[2] }}</td>  <!-- Email -->
-                                    <td>{{ user[4] }}</td>  <!-- Role -->
-                                    <td>{{ user[6].strftime('%d-%m-%Y') }}</td>  <!-- Created At -->
+                                    <td>{{ user[3] }}</td>  <!-- Role -->
+                                    <td>{{ user[4].strftime('%d-%m-%Y') }}</td>  <!-- Created At -->
                                     <td>
                                         <form method="post" action="{{ url_for('manager.toggle_user_status', user_id=user[0]) }}">
                                             <button type="submit"

@@ -20,7 +20,7 @@
         <!-- Custom stylesheet - for your changes-->
         <link rel="stylesheet" href="{{ url_for('static', filename='global/css/custom.css') }}">
         <!-- Favicon-->
-        <link rel="shortcut icon" href="{{ url_for('static', filename='global/img/favicon.ico') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='global/img/favicon_0.ico') }}">
         <!-- Tweaks for older IEs--><!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
             <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
@@ -103,10 +103,19 @@
         <nav id="sidebar">
         <!-- Sidebar Header-->
         <div class="sidebar-header d-flex align-items-center">
-            <div class="avatar"><img src="{{ url_for('static', filename='global/img/avatar-x.jpg') }}" alt="..." class="img-fluid rounded-circle"></div>
+            {% if session.get("user_id") %}
+            <div class="avatar">
+                {% if current_user_img %}
+                    <img src="{{ current_user_img }}" alt="..."
+                        class="img-fluid rounded-circle">
+                {% else %}
+                    <img src="{{ url_for('static', filename='global/img/avatar-x.jpg') }}" alt="..."
+                        class="img-fluid rounded-circle">
+                {% endif %}</div>
             <div class="title">
-            <h1 class="h5">Bhojaviya Abhishek</h1>
-            <p>Python/Flask Developer</p>
+            <h1 class="h5">{{ current_user_name }}</h1>
+            <p>{{ current_user_role }}</p>
+            {%endif %}
             </div>
         </div>
         <!-- Sidebar Navidation Menus--><span class="heading">Main</span>
@@ -118,7 +127,9 @@
             <li class="{% if request.path == url_for('manager.reqhistory') %}active{% endif %}">
             <a href="{{ url_for('manager.reqhistory') }}"> <i class="icon-list"></i>Request History </a></li>
             <li class="{% if request.path == url_for('manager.manusers_m') %}active{% endif %}">
-            <a href="{{ url_for('manager.manusers_m') }}"> <i class="icon-user"></i>Manage Users </a></li>
+            <a href="{{ url_for('manager.manusers_m') }}"> <i class="fa fa-users"></i>Manage Users </a></li>
+            <li class="{% if request.path == url_for('manager.man_mngprof') %}active{% endif %}">
+            <a href="{{ url_for('manager.man_mngprof') }}"> <i class="icon-user"></i>Manage Profile </a></li>
             <li><a href="{{ url_for('auth.logout') }}"> <i class="icon-logout"></i>Logout </a></li>
         </ul>
         </nav>
@@ -143,5 +154,16 @@
         <script src="{{ url_for('static', filename='global/vendor/jquery-validation/jquery.validate.min.js') }}"></script>
         <script src="{{ url_for('static', filename='global/js/charts-home.js') }}"></script>
         <script src="{{ url_for('static', filename='global/js/front.js') }}"></script>
+        <script>
+        $('#editprof').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+
+            $('#edit_id').val(button.data('id'));
+            $('#edit_user_name').val(button.data('name'));
+            $('#edit_user_contact').val(button.data('contact'));
+            $('#edit_user_address').val(button.data('address'));
+            $('#edit_user_about').val(button.data('about'));
+        });
+        </script>
     </body>
 </html>

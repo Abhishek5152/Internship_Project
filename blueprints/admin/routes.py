@@ -2,9 +2,15 @@ from flask import render_template, request, redirect, url_for, session
 from database import get_db_connection
 from utils import login_required, add_log
 
+import cloudinary.uploader
+
 from . import admin_bp
 
-conn = get_db_connection()
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @admin_bp.route('/dashboard')
 @login_required
@@ -18,6 +24,7 @@ def addres():
 
 @admin_bp.route('/add_resource', methods=['POST'])
 def add_resource():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         res_name = request.form['res_name']
@@ -47,7 +54,8 @@ def add_resource():
         """, (cat_id, res_name, res_type, res_desc))
 
         add_log(
-            session.get("admin_id"),
+            conn,
+            session.get("user_id"),
             "ADD",
             "RESOURCE",
             cursor.lastrowid,
@@ -64,11 +72,13 @@ def add_resource():
 
     finally:
         cursor.close()
+        
 
 
 @admin_bp.route('/viewres')
 @login_required
 def viewres():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT * FROM eerm_res")
@@ -80,10 +90,12 @@ def viewres():
         return "Error fetching resources"
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/toggle_resource_status/<int:res_id>', methods=['POST'])
 @login_required
 def toggle_resource_status(res_id):
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT res_lifestatus FROM eerm_res WHERE res_id = %s", (res_id,))
@@ -103,7 +115,8 @@ def toggle_resource_status(res_id):
         conn.commit()
 
         add_log(
-            session.get("admin_id"),
+            conn,
+            session.get("user_id"),
             "TOGGLE",
             "RESOURCE",
             res_id,
@@ -119,10 +132,12 @@ def toggle_resource_status(res_id):
 
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/addbgt')
 @login_required
 def addbgt():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
@@ -134,9 +149,11 @@ def addbgt():
         return "Error fetching categories"
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/add_budget', methods=['POST'])
 def add_budget():
+    conn = get_db_connection()
     cursor = conn.cursor() 
     try:
         bgt_dept = request.form['bgt_dept']
@@ -157,7 +174,8 @@ def add_budget():
         """, (bgt_dept, bgt_cat, bgt_amtlmt, bgt_amtlmt, bgt_start_date, bgt_end_date))
 
         add_log(
-            session.get("admin_id"),
+            conn,
+            session.get("user_id"),
             "CREATE",
             "BUDGET",
             cursor.lastrowid,
@@ -173,11 +191,13 @@ def add_budget():
         return "Error adding budget"
     finally:
         cursor.close()
+        
 
 
 @admin_bp.route('/viewbgt')
 @login_required
 def viewbgt():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("""
@@ -201,10 +221,12 @@ def viewbgt():
         return "Error fetching budgets"
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/update_budget', methods=['POST'])
 @login_required
 def update_budget():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         budget_id = request.form['budget_id']
@@ -227,7 +249,8 @@ def update_budget():
         """, (department, category, amt_lmt, avail_bgt, start_date, end_date, budget_id))
 
         add_log(
-            session.get("admin_id"),
+            conn,
+            session.get("user_id"),
             "UPDATE",
             "BUDGET",
             budget_id,
@@ -241,15 +264,18 @@ def update_budget():
 
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/delete_budget/<int:budget_id>')
 @login_required
 def delete_budget(budget_id):
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("DELETE FROM eerm_budget WHERE budget_id=%s", (budget_id,))
         add_log(
-            session.get("admin_id"),
+            conn,
+            session.get("user_id"),
             "DELETE",
             "BUDGET",
             budget_id,
@@ -260,10 +286,12 @@ def delete_budget(budget_id):
         return redirect(url_for('admin.viewbgt', msg=msg))
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/addpoli')
 @login_required
 def addpoli():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
@@ -275,9 +303,11 @@ def addpoli():
         return "Error fetching categories"
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/add_policy', methods=['POST'])
 def add_policy():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         poli_type = request.form['poli_type']
@@ -295,7 +325,8 @@ def add_policy():
         """, (poli_type, exp_cat, poli_rule, poli_desc))
 
         add_log(
-            session.get("admin_id"),
+            conn,
+            session.get("user_id"),
             "ADD",
             "POLICY",
             cursor.lastrowid,
@@ -310,10 +341,12 @@ def add_policy():
         return "Error adding policy"
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/viewpoli')
 @login_required
 def viewpoli():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("""
@@ -336,10 +369,12 @@ def viewpoli():
         return "Error fetching policies"
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/update_policy', methods=['POST'])
 @login_required
 def update_policy():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         poli_id = request.form['poli_id']
@@ -358,7 +393,8 @@ def update_policy():
         """, (poli_type, exp_cat, poli_rule, poli_desc, poli_id))
 
         add_log(
-            session.get("admin_id"),
+            conn,
+            session.get("user_id"),
             "UPDATE",
             "POLICY",
             poli_id,
@@ -373,15 +409,18 @@ def update_policy():
         return "Error updating policy"
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/delete_policy/<int:poli_id>')
 @login_required
 def delete_policy(poli_id):
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("DELETE FROM eerm_poli WHERE poli_id=%s", (poli_id,))
         add_log(
-            session.get("admin_id"),
+            conn,
+            session.get("user_id"),
             "DELETE",
             "POLICY",
             poli_id,
@@ -392,25 +431,29 @@ def delete_policy(poli_id):
         return redirect(url_for('admin.viewpoli', msg=msg))
     finally:
         cursor.close()
+        
+        
 
 @admin_bp.route('/manusers')
 @login_required
 def manusers():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM eerm_users where user_role != 'Admin'")
+        cursor.execute("SELECT user_id, user_name, user_email, user_role, user_status, created_at FROM eerm_users where user_role != 'Admin'")
         users = cursor.fetchall()
-        cursor.execute("SELECT DISTINCT user_role FROM eerm_users")
         return render_template('admin/admin_manusers.html', users=users)
     except Exception as e:
         print("Error fetching users:", e)
         return "Error fetching users"
     finally:
         cursor.close()
+        
 
 @admin_bp.route('/update_user', methods=['POST'])
 @login_required
 def update_user():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         user_id = request.form['user_id']
@@ -423,13 +466,14 @@ def update_user():
             UPDATE eerm_users SET 
                 user_name=%s, 
                 user_email=%s, 
-                user_role=%s, 
+                user_role=%s,
                 user_status=%s
             WHERE user_id=%s
         """, (user_name, user_email, user_role, user_status, user_id))
 
         add_log(
-            session.get("admin_id"),
+            conn,
+            session.get("user_id"),
             "UPDATE",
             "USER",
             user_id,
@@ -444,33 +488,51 @@ def update_user():
         return "Error updating user"
     finally:
         cursor.close()
+        
 
-@admin_bp.route('/delete_user/<int:user_id>')
+@admin_bp.route('/toggle_user_status/<int:user_id>', methods=['POST'])
 @login_required
-def delete_user(user_id):
+def toggle_user_status(user_id):
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("DELETE FROM eerm_users WHERE user_id = %s", (user_id,))
-        add_log(
-            session.get("admin_id"),
-            "DELETE",
-            "USER",
-            user_id,
-            f"Deleted User ID {user_id}"
-        )
+        cursor.execute("SELECT user_status FROM eerm_users WHERE user_id = %s", (user_id,))
+        result = cursor.fetchone()
+
+        if result is None:
+            return "User not found"
+
+        current_status = result[0]
+        new_status = 'Inactive' if current_status == 'Active' else 'Active'
+
+        cursor.execute("UPDATE eerm_users SET user_status = %s WHERE user_id = %s", (new_status, user_id))
         conn.commit()
-        msg = "User deleted successfully"
+
+        add_log(
+            conn,
+            session.get("user_id"),
+            "TOGGLE",
+            "USER_STATUS",
+            user_id,
+            f"Changed user status to {new_status}"
+        )
+
+        msg = "User status updated successfully"
         return redirect(url_for('admin.manusers', msg=msg))
+
     except Exception as e:
-        print("Error deleting user:", e)
-        return "Error deleting user"
+        print("Error toggling user status:", e)
+        return "Error toggling user status"
+
     finally:
         cursor.close()
+        
 
 
 @admin_bp.route('/viewlogs')
 @login_required
 def viewlogs():
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("""
@@ -488,6 +550,107 @@ def viewlogs():
         return render_template('admin/admin_viewlogs.html', logs=logs)
     finally:
         cursor.close()
+        
+
+@admin_bp.route('/upload_profile_photo', methods=['POST'])
+@login_required
+def upload_profile_photo():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        file = request.files.get('photo')
+
+        if not file or not allowed_file(file.filename):
+            return "Invalid file type"
+
+        result = cloudinary.uploader.upload(
+            file,
+            folder="eerm_profiles",
+            public_id=f"user_{session.get('user_id')}",
+            overwrite=True,
+            transformation=[
+                {"width": 300, "height": 300, "crop": "fill"}
+            ]
+        )
+
+        image_url = result['secure_url']
+
+        cursor.execute("""
+            UPDATE eerm_users
+            SET user_img_url=%s
+            WHERE user_id=%s
+        """, (image_url, session.get('user_id')))
+
+        add_log(
+            conn,
+            session.get("user_id"),
+            "UPDATE",
+            "USER_PHOTO",
+            session.get("user_id"),
+            "Updated profile picture"
+        )
+
+        conn.commit()
+
+        return redirect(url_for('admin.mngprof'))
+
+    finally:
+        cursor.close()         
+
+@admin_bp.route('/mngprof')
+@login_required
+def mngprof():
+    user_id = session.get('user_id')
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id, user_name, user_email, user_contact, user_address, user_about, user_img_url FROM eerm_users WHERE user_id = %s", (user_id,))
+    user_data = cursor.fetchone()
+    cursor.close()
+    
+    return render_template('admin/admin_mngprof.html', user_data=user_data)
+
+@admin_bp.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    user_id = session.get('user_id')
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        if request.method == 'POST':
+            user_name = request.form.get('user_name')
+            user_contact = request.form.get('user_contact')
+            user_address = request.form.get('user_address')
+            user_about = request.form.get('user_about')
+
+            
+
+            cursor.execute("""
+                UPDATE eerm_users SET 
+                    user_name=%s, 
+                    user_contact=%s, 
+                    user_address=%s,
+                    user_about=%s
+                WHERE user_id=%s
+            """, (user_name, user_contact, user_address, user_about, user_id))
 
 
+            add_log(
+                conn,
+                user_id,
+                "UPDATE",
+                "USER_PROFILE",
+                user_id,
+                f"Updated profile details for User ID {user_id}"
+            )
 
+            conn.commit()
+            msg = "Profile updated successfully"
+            return redirect(url_for('admin.mngprof', msg=msg))
+        else:
+            cursor.execute("SELECT user_id, user_name, user_email, user_contact, user_address, user_about FROM eerm_users WHERE user_id = %s", (user_id,))
+            user_data = cursor.fetchone()
+            return render_template('admin/admin_edit_profile.html', user_data=user_data)
+    finally:
+        cursor.close()
+        
