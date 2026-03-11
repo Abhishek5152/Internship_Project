@@ -23,7 +23,7 @@ def manusers_m():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT user_id, user_name, user_email, user_role, created_at, user_status FROM eerm_users where user_role = 'Employee'")
+        cursor.execute("SELECT user_id, user_name, user_email, user_role, created_at, user_status FROM eerm_users where user_role = 'Employee' AND dept_id = %s", (session.get("dept_id"),))
         users = cursor.fetchall()
         return render_template('manager/man_manusers.html', users=users)
     except Exception as e:
@@ -73,6 +73,117 @@ def toggle_user_status(user_id):
     finally:
         cursor.close()
         
+
+@man_bp.route('/viewexpense')
+@login_required
+def viewexpense():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT e.exp_id, e.user_id, c.cat_name, e.exp_amt, e.exp_desc, e.exp_date, e.exp_status, e.receipt_url, e.created_at
+            FROM eerm_exp e
+            JOIN eerm_expcat c ON e.cat_id = c.cat_id
+            JOIN eerm_users u ON e.user_id = u.user_id
+            WHERE u.dept_id = %s AND e.exp_status != 'Pending'
+        """, (session.get("dept_id"),))
+        expenses = cursor.fetchall()
+        return render_template('manager/man_viewexp.html', expenses=expenses)
+    except Exception as e:
+        print("Error fetching expenses:", e)
+        return "Error fetching expenses"
+    finally:
+        cursor.close()
+
+@man_bp.route('/exprequests')
+@login_required
+def exprequests():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT e.exp_id, e.user_id, c.cat_name, e.exp_amt, e.exp_desc, e.exp_date, e.exp_status, e.receipt_url, e.created_at
+            FROM eerm_exp e
+            JOIN eerm_expcat c ON e.cat_id = c.cat_id
+            JOIN eerm_users u ON e.user_id = u.user_id
+            WHERE u.dept_id = %s AND e.exp_status = 'Pending'
+        """, (session.get("dept_id"),))
+        expenses = cursor.fetchall()
+        return render_template('manager/man_expreq.html', expenses=expenses)
+    except Exception as e:
+        print("Error fetching expenses:", e)
+        return "Error fetching expenses"
+    finally:
+        cursor.close()
+
+@man_bp.route('/expapprove/<int:exp_id>', methods=['POST'])
+@login_required
+def expapprove(exp_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT exp_amt FROM eerm_exp WHERE exp_id = %s", (exp_id,))
+        result = cursor.fetchone()
+        print("Expense amount:", result)
+        cursor.execute("SELECT cat_id FROM eerm_exp WHERE exp_id = %s", (exp_id,))
+        cat_result = cursor.fetchone()
+        print("Expense category ID:", cat_result)
+        cursor.execute("select avail_bgt from eerm_budget where dept_id = %s AND cat_id = %s", (session.get("dept_id"), cat_result[0]))
+        budget_result = cursor.fetchone()
+        print("Available budget:", budget_result)
+        if result is None or budget_result is None:
+            return "Expense or budget not found"
+        else:
+            exp_amount = result[0]
+            avail_bgt = budget_result[0]
+            if exp_amount > avail_bgt:
+                msg = "Cannot approve expense. Amount exceeds available budget."
+                return redirect(url_for('manager.exprequests', msg=msg))
+            else:
+                new_avail_bgt = avail_bgt - exp_amount
+                cursor.execute("UPDATE eerm_budget SET avail_bgt = %s WHERE dept_id = %s AND cat_id = %s", (new_avail_bgt, session.get("dept_id"), cat_result[0]))
+        cursor.execute("UPDATE eerm_exp SET exp_status = 'Approved' WHERE exp_id = %s", (exp_id,))
+        conn.commit()
+        add_log(
+            conn,
+            session.get("user_id"),
+            "APPROVE",
+            "EXPENSE",
+            exp_id,
+            f"Approved expense with ID {exp_id}"
+        )
+        msg = "Expense approved successfully"
+        return redirect(url_for('manager.exprequests', msg=msg))
+    except Exception as e:
+        print("Error approving expense:", e)
+        return "Error approving expense"
+    finally:
+        cursor.close()
+
+@man_bp.route('/expdeny/<int:exp_id>', methods=['POST'])
+@login_required
+def expdeny(exp_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("UPDATE eerm_exp SET exp_status = 'Rejected' WHERE exp_id = %s", (exp_id,))
+        conn.commit()
+        add_log(
+            conn,
+            session.get("user_id"),
+            "DENY",
+            "EXPENSE",
+            exp_id,
+            f"Rejected expense with ID {exp_id}"
+        )
+        msg = "Expense rejected successfully"
+        return redirect(url_for('manager.exprequests', msg=msg))
+    except Exception as e:
+        print("Error rejecting expense:", e)
+        return "Error rejecting expense"
+    finally:
+        cursor.close()
+
 
 @man_bp.route('/viewreq')
 @login_required

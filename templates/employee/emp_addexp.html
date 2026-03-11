@@ -1,0 +1,65 @@
+{% extends "employee/emp_layout.html" %}
+
+{% block content %} 
+{% if msg %}
+<script>alert("{{ msg }}")</script>
+{% endif %}
+            <div class="page-content">
+                <!-- Page Header-->
+                <div class="page-header no-margin-bottom">
+                <div class="container-fluid">
+                    <h2 class="h5 no-margin-bottom">Submit Expense</h2>
+                </div>
+                </div>
+                <!-- Breadcrumb-->
+                <div class="container-fluid">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('employee.empdash') }}">Home</a></li>
+                    <li class="breadcrumb-item active">Submit Expense</li>
+                </ul>
+                </div>
+                <section class="no-padding-top">
+                    <div class="container-fluid">
+                        <div class="row">
+                        <!-- Basic Form-->
+                        <div class="col-lg-6">
+                            <div class="block">
+                            <!-- <div class="title"><strong class="d-block">Category Form</strong></div> -->
+                            <div class="block-body">
+                                <form method="post" action="{{ url_for('employee.submitexpense') }}" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label class="form-control-label">Expense Type</label>
+                                    <select class="form-control" name="exp_type" required data-msg ="Please select an expense type">
+                                        <option value="">Select Expense Type</option>
+                                        {% for etype in exp_types %}
+                                        <option value="{{ etype[0] }}">{{ etype[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Amount</label>
+                                    <input type="number" name="exp_amount" placeholder="Amount" class="form-control" required data-msg="Please enter the amount">
+                                </div>
+                                <div class="form-group">       
+                                    <label class="form-control-label">Description</label>
+                                    <textarea name="exp_desc" placeholder="Description" class="form-control"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Expense Date</label>
+                                    <input type="date" name="exp_date" class="form-control" required data-msg="Please select the expense date">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-control-label">Receipt</label>
+                                    <input type="file" name="document" class="form-control">
+                                </div>
+                                <div class="form-group">       
+                                    <input type="submit" value="Submit" class="btn btn-primary">
+                                </div>
+                                </form>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </section>    
+{% endblock %}

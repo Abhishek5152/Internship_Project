@@ -28,12 +28,11 @@
                                 <form method="post" action="{{ url_for('admin.add_policy') }}">
                                 <div class="form-group">
                                     <label class="form-control-label">Policy Type</label>
-                                    <select class="form-control" name="poli_type" id="poli_type" required data-msg ="Please select a policy type">
+                                    <select class="form-control" name="poli_type" required data-msg ="Please select a Policy Type">
                                         <option value="">Select Policy Type</option>
-                                        <option value="MAX_AMOUNT">Max Amount</option>
-                                        <option value="DAILY_LIMIT">Daily Limit</option>
-                                        <option value="APPROVAL_REQUIRED">Approval Required</option>
-                                        <option value="AUTO_REJECT_LIMIT">Auto Reject Limit</option>
+                                        {% for poli in policies %}
+                                            <option value="{{ poli[0] }}">{{ poli[1] }}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <div class="form-group">       

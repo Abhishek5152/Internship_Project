@@ -111,10 +111,11 @@
                 {% else %}
                     <img src="{{ url_for('static', filename='global/img/avatar-x.jpg') }}" alt="..."
                         class="img-fluid rounded-circle">
-                {% endif %}</div>
+                {% endif %}
+            </div>
             <div class="title">
             <h1 class="h5">{{ current_user_name }}</h1>
-            <p>{{ current_user_role }}</p>
+            <p>{{ current_user_dept }} - {{ current_user_role }}</p>
             {%endif %}
             </div>
         </div>
@@ -122,6 +123,14 @@
         <ul class="list-unstyled">
             <li class="{% if request.path == url_for('manager.mandash') %}active{% endif %}">
             <a href="{{ url_for('manager.mandash') }}"> <i class="icon-home"></i>Home </a></li>
+            <li><a href="#ManageExpense" data-toggle="collapse" aria-expanded="{% if request.path in [url_for('manager.exprequests'),url_for('manager.viewexpense')] %}true{% else %}false{% endif %}"
+            class="{% if request.path in [url_for('manager.exprequests'),url_for('manager.viewexpense')] %}{% else %}collapsed{% endif %}">
+            <i class="fa fa-list"></i>Expense</a>
+                <ul id="ManageExpense" class="collapse list-unstyled {% if request.path in [url_for('manager.exprequests'),url_for('manager.viewexpense')] %}show{% endif %}">            
+                <li class="{% if request.path == url_for('manager.exprequests') %}active{% endif %}"><a href="{{ url_for('manager.exprequests') }}">Expense Requests</a></li>
+                <li class="{% if request.path == url_for('manager.viewexpense') %}active{% endif %}"><a href="{{ url_for('manager.viewexpense') }}">View Expenses</a></li>
+                </ul>
+            </li>
             <li class="{% if request.path == url_for('manager.viewreq') %}active{% endif %}">
             <a href="{{ url_for('manager.viewreq') }}"> <i class="icon-padnote"></i>View Requests </a></li>
             <li class="{% if request.path == url_for('manager.reqhistory') %}active{% endif %}">

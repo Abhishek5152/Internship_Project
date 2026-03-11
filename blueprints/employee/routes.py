@@ -3,10 +3,11 @@ from database import get_db_connection
 from utils import login_required, add_log
 
 import cloudinary.uploader
+import uuid
 
 from . import emp_bp
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -29,8 +30,8 @@ def myresources():
                    a.ret_date
             FROM eerm_alloc a 
             JOIN eerm_res c ON a.res_id = c.res_id
-            where a.alloc_status != 'Pending'
-        """)
+            where a.alloc_status != 'Pending' AND a.user_id = %s
+        """, (session.get('user_id'),))
     resources = cursor.fetchall()
     cursor.close()
     
@@ -164,7 +165,113 @@ def upload_profile_photo():
     finally:
         cursor.close()
 
+@emp_bp.route('/addexpense')
+@login_required
+def addexpense():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
+        exp_types = cursor.fetchall()
+        return render_template('employee/emp_addexp.html', exp_types=exp_types)
+    except Exception as e:
+        print("Error fetching expense types:", e)
+    finally:        
+        cursor.close()
 
+@emp_bp.route('/submitexpense', methods=['POST'])
+@login_required
+def submitexpense():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        exp_type = request.form.get('exp_type')
+        exp_desc = request.form.get('exp_desc')
+        exp_amount = request.form.get('exp_amount')
+        exp_date = request.form.get('exp_date')
+        user_id = session.get('user_id')
+
+        file = request.files.get('document')
+
+        if not file or not allowed_file(file.filename):
+            return "Invalid file type"
+        
+        result = cloudinary.uploader.upload(
+            file,
+            folder="eerm_receipts",
+            public_id=f"user_{user_id}_{uuid.uuid4()}",
+            resource_type="auto",
+            overwrite=True
+        )
+        receipt_url = result['secure_url']
+        
+        cursor.execute("INSERT INTO eerm_exp (user_id, cat_id, exp_amt, exp_desc, exp_date, receipt_url) VALUES (%s, %s, %s, %s, %s, %s)", (user_id, exp_type, exp_amount, exp_desc, exp_date, receipt_url))
+        conn.commit()
+        msg = "Expense submitted successfully"
+        return redirect(url_for('employee.addexpense', msg=msg))
+    except Exception as e:
+        print("Error submitting expense:", e)
+    finally:
+        cursor.close()
+
+@emp_bp.route('/viewexpense')
+@login_required
+def viewexpense():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        user_id = session.get('user_id')
+        cursor.execute("""
+            SELECT e.exp_id, c.cat_name, e.exp_amt, e.exp_desc, e.exp_date, e.exp_status ,e.receipt_url
+            FROM eerm_exp e
+            JOIN eerm_expcat c ON e.cat_id = c.cat_id
+            WHERE e.user_id = %s and e.exp_status != "Pending" and e.exp_status != "Cancelled"
+            ORDER BY e.exp_date DESC
+        """, (user_id,))
+        expenses = cursor.fetchall()
+        return render_template('employee/emp_viewexp.html', expenses=expenses)
+    except Exception as e:
+        print("Error fetching expenses:", e)
+        return "Error fetching expenses"
+    finally:
+        cursor.close()
+
+@emp_bp.route('/exprequests')
+@login_required
+def exprequests():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        user_id = session.get('user_id')
+        cursor.execute("""
+            SELECT e.exp_id, c.cat_name, e.exp_amt, e.exp_desc, e.exp_date, e.exp_status ,e.receipt_url
+            FROM eerm_exp e
+            JOIN eerm_expcat c ON e.cat_id = c.cat_id
+            WHERE e.user_id = %s and e.exp_status = "Pending" AND e.exp_status = "Cancelled"
+            ORDER BY e.exp_date DESC
+        """, (user_id,))
+        expenses = cursor.fetchall()
+        return render_template('employee/emp_viewexpreq.html', expenses=expenses)
+    except Exception as e:
+        print("Error fetching expense requests:", e)
+        return "Error fetching expense requests"
+    finally:
+        cursor.close()
+
+@emp_bp.route('/cancelreq/<int:exp_id>', methods=['POST'])
+@login_required
+def cancelreq(exp_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE eerm_exp SET exp_status='Cancelled' WHERE exp_id=%s", (exp_id,))
+        conn.commit()
+        return redirect(url_for('employee.exprequests'))
+    except Exception as e:
+        print("Error cancelling expense request:", e)
+        return "Error cancelling expense request"
+    finally:
+        cursor.close()
 
 @emp_bp.route('/emp_mngprof')
 @login_required
@@ -172,7 +279,7 @@ def emp_mngprof():
     conn = get_db_connection()
     user_id = session.get('user_id')
     cursor = conn.cursor()
-    cursor.execute("SELECT user_id, user_name, user_email, user_contact, user_address, user_about, user_img_url FROM eerm_users WHERE user_id = %s", (user_id,))
+    cursor.execute("SELECT user_id, user_name, user_email, user_contact, user_address, user_about, user_img_url, dept_name FROM eerm_users JOIN eerm_dept ON eerm_users.dept_id = eerm_dept.dept_id WHERE user_id = %s", (user_id,))
     user_data = cursor.fetchone()
     cursor.close()
     

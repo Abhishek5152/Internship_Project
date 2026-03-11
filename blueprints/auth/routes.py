@@ -51,7 +51,17 @@ def admin_login():
 
 @auth_bp.route('/user_register')
 def user_register():
-    return render_template('global_user/user_register.html')
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT dept_id, dept_name FROM eerm_dept")
+        departments = cursor.fetchall()
+        return render_template('global_user/user_register.html', departments=departments)  
+    except Exception as e:
+        print("Error fetching departments:", e)
+        return "Error fetching departments"
+    finally:
+        cursor.close()
 
 @auth_bp.route('/register_user', methods=['POST'])
 def register_user():
@@ -61,8 +71,9 @@ def register_user():
         reg_name = request.form['reg_name']
         reg_email = request.form['reg_email']
         reg_pass = request.form['reg_pass']
+        reg_dept = request.form['reg_dept']
 
-        if not reg_name or not reg_email or not reg_pass:
+        if not reg_name or not reg_email or not reg_pass or not reg_dept:
             msg = "All fields are required"
             return redirect(url_for('auth.user_register', msg=msg))
 
@@ -74,9 +85,9 @@ def register_user():
             return redirect(url_for('auth.user_register', msg=msg))
 
         cursor.execute("""
-            INSERT INTO eerm_users (user_name, user_email, user_pass, user_role, user_status)
-            VALUES (%s, %s, %s, 'Employee', 'Active')
-        """, (reg_name, reg_email, reg_pass))
+            INSERT INTO eerm_users (user_name, user_email, user_pass, user_role, user_status, dept_id)
+            VALUES (%s, %s, %s, 'Employee', 'Active', %s)
+        """, (reg_name, reg_email, reg_pass, reg_dept))
         conn.commit()
 
         add_log(
@@ -85,7 +96,7 @@ def register_user():
             "REGISTER",
             "USER",
             cursor.lastrowid,
-            f"New user registered with email {reg_email}"
+            f"New user registered with email {reg_email} in department ID {reg_dept}"
         )
 
         msg = "Registration successful! Please log in."
@@ -111,11 +122,11 @@ def userlogin():
         user_pass = request.form['user_pass']
         cursor.execute("SELECT * FROM eerm_users WHERE user_email = %s AND user_pass = %s", (user_email, user_pass))
         user = cursor.fetchone()
-        cursor.close()
         if user:
             session["user_id"] = user[0]
             session["user_name"] = user[1]
             session["user_role"] = user[4]
+            session["dept_id"] = user[5]
 
             add_log(
                 conn,
@@ -128,15 +139,18 @@ def userlogin():
 
             msg = "Login successful!"
 
-            if user[4] == 'Manager' and user[5] == 'Active':
+            if user[4] == 'Manager' and user[6] == 'Active':
                 return redirect(url_for('manager.mandash', msg=msg))
-            elif user[4] == 'Employee' and user[5] == 'Active':
+            elif user[4] == 'Employee' and user[6] == 'Active':
                 return redirect(url_for('employee.empdash', msg=msg))
             elif user[4] == 'Admin':
                 msg = "Admins must log in through the admin portal"
                 return redirect(url_for('auth.addlogin', msg=msg))
-            elif user[5] == 'Inactive':
+            elif user[6] == 'Inactive':
                 msg = "Your account is inactive. Please contact the administrator."
+                return redirect(url_for('auth.user_login', msg=msg))
+            else:
+                msg = "Invalid account state."
                 return redirect(url_for('auth.user_login', msg=msg))
 
         else:

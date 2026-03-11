@@ -28,7 +28,12 @@
                                 <form method="post" action="{{ url_for('admin.add_budget') }}">
                                 <div class="form-group">
                                     <label class="form-control-label">Department</label>
-                                    <input type="text" name="bgt_dept" placeholder="Department" class="form-control" required data-msg="Please enter the department">
+                                    <select class="form-control" name="bgt_dept" required data-msg ="Please select a department">
+                                        <option value="">Select department</option>
+                                        {% for dept in departments %}
+                                            <option value="{{ dept[0] }}">{{ dept[1] }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                                 <div class="form-group">       
                                     <label class="form-control-label">Budget Category</label>
@@ -43,13 +48,9 @@
                                     <label class="form-control-label">Amount Limit</label>
                                     <input type="number" name="bgt_amtlmt" placeholder="Amount Limit" class="form-control" required data-msg="Please enter the amount limit">
                                 </div>
-                                <div class="form-group">       
-                                    <label class="form-control-label">Start Date</label>
-                                    <input type="date" name="bgt_start_date" class="form-control" required data-msg="Please enter the start date">
-                                </div>
-                                <div class="form-group">       
-                                    <label class="form-control-label">End Date</label>
-                                    <input type="date" name="bgt_end_date" class="form-control" required data-msg="Please enter the end date">
+                                <div class="form-group">
+                                    <label class="form-control-label">Year</label>
+                                    <input type="year" name="bgt_year" class="form-control" required data-msg="Please enter the year">
                                 </div>
                                 <div class="form-group">       
                                     <input type="submit" value="Submit" class="btn btn-primary">

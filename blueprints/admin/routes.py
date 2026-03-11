@@ -15,7 +15,49 @@ def allowed_file(filename):
 @admin_bp.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('admin/admin_dashboard.html')
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT COUNT(*) FROM eerm_users where user_role != 'Admin'")
+        users = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Employee'")
+        employees = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Manager'")
+        managers = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM eerm_res")
+        all_resources = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM eerm_alloc")
+        active_resources = cursor.fetchone()[0]
+
+        cursor.execute("SELECT SUM(amt_lmt) FROM eerm_budget")
+        budget = cursor.fetchone()[0]
+
+        cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget")
+        avail_budget = cursor.fetchone()[0]
+
+        emp_percent = (employees / users * 100) if users else 0
+        mgr_percent = (managers / users * 100) if users else 0
+        res_percent = (active_resources / all_resources * 100) if all_resources else 0
+        bgt_percent = (avail_budget / budget * 100) if budget else 0
+
+        return render_template('admin/admin_dashboard.html', 
+                               employees=employees, 
+                               managers=managers, 
+                               active_resources=active_resources,
+                               avail_budget=int(avail_budget),
+                               bgt_percent=bgt_percent,
+                               emp_percent=emp_percent,
+                               mgr_percent=mgr_percent,
+                               res_percent=res_percent)
+        
+    except Exception as e:
+        print("Error loading dashboard:", e)
+    finally:
+        cursor.close()
 
 @admin_bp.route('/addres')
 @login_required
@@ -140,9 +182,11 @@ def addbgt():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
+        cursor.execute("SELECT dept_id, dept_name FROM eerm_dept")
+        departments = cursor.fetchall()
         cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
         categories = cursor.fetchall()
-        return render_template('admin/admin_addbgt.html', categories=categories)
+        return render_template('admin/admin_addbgt.html', departments=departments, categories=categories)
 
     except Exception as e:
         print("Error fetching categories:", e)
@@ -159,19 +203,17 @@ def add_budget():
         bgt_dept = request.form['bgt_dept']
         bgt_cat = request.form['bgt_cat']
         bgt_amtlmt = request.form['bgt_amtlmt']
-        bgt_start_date = request.form['bgt_start_date']
-        bgt_end_date = request.form['bgt_end_date']
+        bgt_year = request.form['bgt_year']
 
 
-        if not bgt_amtlmt or not bgt_dept or not bgt_cat or not bgt_start_date or not bgt_end_date:
+        if not bgt_amtlmt or not bgt_dept or not bgt_cat or not bgt_year:
             msg = "All fields are required"
             return redirect(url_for('admin.addbgt', msg=msg))
 
         cursor.execute("""
-            INSERT INTO eerm_budget (department, cat_id, amt_lmt, avail_bgt, start_date, end_date)
-
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (bgt_dept, bgt_cat, bgt_amtlmt, bgt_amtlmt, bgt_start_date, bgt_end_date))
+            INSERT INTO eerm_budget (dept_id, cat_id, amt_lmt, avail_bgt, bgt_year)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (bgt_dept, bgt_cat, bgt_amtlmt, bgt_amtlmt, bgt_year))
 
         add_log(
             conn,
@@ -202,15 +244,16 @@ def viewbgt():
     try:
         cursor.execute("""
             SELECT b.budget_id,
-                   b.department,
+                   d.dept_name,
                    b.cat_id,
                    c.cat_name,
                    b.amt_lmt,
                    b.avail_bgt,
-                   b.start_date,
-                   b.end_date
+                   b.bgt_year,
+                   b.dept_id
             FROM eerm_budget b
             JOIN eerm_expcat c ON b.cat_id = c.cat_id
+            JOIN eerm_dept d ON b.dept_id = d.dept_id
         """)
         budgets = cursor.fetchall()
         cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
@@ -234,19 +277,17 @@ def update_budget():
         category = request.form['category']
         amt_lmt = request.form['amt_lmt']
         avail_bgt = request.form['avail_bgt']
-        start_date = request.form['start_date']
-        end_date = request.form['end_date']
+        bgt_year = request.form['bgt_year']
 
         cursor.execute("""
             UPDATE eerm_budget
-            SET department=%s,
+            SET dept_id=%s,
                 cat_id=%s,
                 amt_lmt=%s,
                 avail_bgt=%s,
-                start_date=%s,
-                end_date=%s
+                bgt_year=%s
             WHERE budget_id=%s
-        """, (department, category, amt_lmt, avail_bgt, start_date, end_date, budget_id))
+        """, (department, category, amt_lmt, avail_bgt, bgt_year, budget_id))
 
         add_log(
             conn,
@@ -296,7 +337,9 @@ def addpoli():
     try:
         cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
         categories = cursor.fetchall()
-        return render_template('admin/admin_addpoli.html', categories=categories)
+        cursor.execute("SELECT cat_id, cat_name FROM eerm_policat")
+        policies = cursor.fetchall()
+        return render_template('admin/admin_addpoli.html', categories=categories, policies=policies)
 
     except Exception as e:
         print("Error fetching categories:", e)
@@ -320,7 +363,7 @@ def add_policy():
             return redirect(url_for('addpoli', msg=msg))
 
         cursor.execute("""
-            INSERT INTO eerm_poli (poli_type, cat_id, rule_value, poli_desc)
+            INSERT INTO eerm_poli (policat_id, cat_id, rule_value, poli_desc)
             VALUES (%s, %s, %s, %s)
         """, (poli_type, exp_cat, poli_rule, poli_desc))
 
@@ -353,17 +396,21 @@ def viewpoli():
             SELECT p.poli_id,
                    p.cat_id,
                    c.cat_name,
-                   p.poli_type,
+                   p.policat_id,
+                   pc.cat_name as policat_name,
                    p.rule_value,
                    p.poli_desc,
                    p.created_at
             FROM eerm_poli p
             JOIN eerm_expcat c ON p.cat_id = c.cat_id
+            JOIN eerm_policat pc ON p.policat_id = pc.cat_id
         """)
         policies = cursor.fetchall()
         cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
         categories = cursor.fetchall()
-        return render_template('admin/admin_viewpoli.html', policies=policies, categories=categories)
+        cursor.execute("SELECT cat_id, cat_name FROM eerm_policat")
+        policat = cursor.fetchall()
+        return render_template('admin/admin_viewpoli.html', policies=policies, categories=categories, policat=policat)
     except Exception as e:
         print("Error fetching policies:", e)
         return "Error fetching policies"
@@ -385,7 +432,7 @@ def update_policy():
 
         cursor.execute("""
             UPDATE eerm_poli SET 
-                poli_type=%s, 
+                policat_id=%s, 
                 cat_id=%s, 
                 rule_value=%s, 
                 poli_desc=%s

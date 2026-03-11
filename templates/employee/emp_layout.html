@@ -114,7 +114,7 @@
                 {% endif %}</div>
             <div class="title">
             <h1 class="h5">{{ current_user_name }}</h1>
-            <p>{{ current_user_role }}</p>
+            <p>{{ current_user_dept }} - {{ current_user_role }}</p>
             {%endif %}
             </div>
         </div>
@@ -124,10 +124,19 @@
             <a href="{{ url_for('employee.empdash') }}"> <i class="icon-home"></i>Home </a></li>
             <li><a href="#ManageResources" data-toggle="collapse" aria-expanded="{% if request.path in [url_for('employee.myresources'),url_for('employee.myrequests')] %}true{% else %}false{% endif %}"
             class="{% if request.path in [url_for('employee.myresources'),url_for('employee.myrequests')] %}{% else %}collapsed{% endif %}">
-            <i class="fa fa-money"></i>Manage Resources</a>
+            <i class="fa fa-cubes"></i>Manage Resources</a>
                 <ul id="ManageResources" class="collapse list-unstyled {% if request.path in [url_for('employee.myresources'),url_for('employee.myrequests')] %}show{% endif %}">
                 <li class="{% if request.path == url_for('employee.myresources') %}active{% endif %}"><a href="{{ url_for('employee.myresources') }}">My Resources</a></li>
                 <li class="{% if request.path == url_for('employee.myrequests') %}active{% endif %}"><a href="{{ url_for('employee.myrequests') }}">My Requests</a></li>
+                </ul>
+            </li>
+            <li><a href="#ManageExpense" data-toggle="collapse" aria-expanded="{% if request.path in [url_for('employee.exprequests'),url_for('employee.viewexpense'),url_for('employee.addexpense')] %}true{% else %}false{% endif %}"
+            class="{% if request.path in [url_for('employee.exprequests'),url_for('employee.viewexpense'),url_for('employee.addexpense')] %}{% else %}collapsed{% endif %}">
+            <i class="fa fa-money"></i>Manage Expense</a>
+                <ul id="ManageExpense" class="collapse list-unstyled {% if request.path in [url_for('employee.exprequests'),url_for('employee.viewexpense'),url_for('employee.addexpense')] %}show{% endif %}">
+                <li class="{% if request.path == url_for('employee.addexpense') %}active{% endif %}"><a href="{{ url_for('employee.addexpense') }}">Submit Expense</a></li>
+                <li class="{% if request.path == url_for('employee.exprequests') %}active{% endif %}"><a href="{{ url_for('employee.exprequests') }}">My Expense Requests</a></li>
+                <li class="{% if request.path == url_for('employee.viewexpense') %}active{% endif %}"><a href="{{ url_for('employee.viewexpense') }}">View Expenses</a></li>
                 </ul>
             </li>
             <li class="{% if request.path == url_for('employee.emp_mngprof') %}active{% endif %}">

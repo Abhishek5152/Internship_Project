@@ -50,9 +50,10 @@ def inject_user():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT user_name, user_role, user_img_url
-        FROM eerm_users
-        WHERE user_id = %s
+        SELECT u.user_name, u.user_role, u.user_img_url, u.dept_id, d.dept_name
+        FROM eerm_users u
+        LEFT JOIN eerm_dept d ON u.dept_id = d.dept_id
+        WHERE u.user_id = %s
     """, (user_id,))
 
     user = cursor.fetchone()
@@ -62,7 +63,8 @@ def inject_user():
         return {
             "current_user_name": user[0],
             "current_user_role": user[1],
-            "current_user_img": user[2]
+            "current_user_img": user[2],
+            "current_user_dept": user[4]
         }
 
     return {}
