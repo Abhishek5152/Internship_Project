@@ -1,0 +1,104 @@
+{% extends "admin/admin_layout.html" %}
+
+{% block content %}
+            <div class="page-content">
+                <!-- Page Header-->
+                <div class="page-header no-margin-bottom">
+                <div class="container-fluid">
+                    <h2 class="h5 no-margin-bottom">Budget</h2>
+                </div>
+                </div>
+                <!-- Breadcrumb-->
+                <div class="container-fluid">
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.viewbgt') }}">Budget</a></li>
+                    <li class="breadcrumb-item active">{{ dept[0] }}</li>
+                </ul>
+                </div>
+                <section class="no-padding-top">
+                <div class="container-fluid">
+                    <div class="row">
+                    <div class="col-lg-12">
+                        <div class="block">
+                        <div class="title"><strong>{{ dept[0] }} Budget</strong></div>
+                        <div class="table-responsive"> 
+                            <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                <th>Category</th>
+                                <th>Amount Limit</th>
+                                <th>Available Budget</th>
+                                <th>Year</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bgt in budgets %}
+                                <tr>
+                                    <td>{{ bgt[2] }}</td>  <!-- Category -->
+                                    <td>{{ "{:,}".format(bgt[3]|int) }}</td>  <!-- Amount Limit -->
+                                    <td>{{ "{:,}".format(bgt[4]|int) }}</td>  <!-- Available Budget -->
+                                    <td>{{ bgt[5] }}</td>  <!-- Year -->
+                                    <td>
+                                        <button class="btn btn-sm btn-primary"
+                                                data-toggle="modal"
+                                                data-target="#editModal"
+                                                data-id="{{ bgt[0] }}"
+                                                data-amt="{{ bgt[3] }}"
+                                                data-avail="{{ bgt[4] }}"
+                                                data-year="{{ bgt[5] }}">Edit
+                                        </button>
+                                        <a href="{{ url_for('admin.delete_budget', budget_id=bgt[0]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this budget?');">Delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                    </div>
+                </div>
+                </section>
+                <!-- Edit Budget Modal -->
+                <div class="modal fade" id="editModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <form method="POST" action="{{ url_for('admin.update_budget') }}">
+                        <div class="modal-header">
+                        <h5 class="modal-title">Edit Budget</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+
+                        <input type="hidden" name="budget_id" id="edit_id">
+
+                        <div class="form-group">
+                            <label>Amount Limit</label>
+                            <input type="number" name="amt_lmt" id="edit_amt" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Available Budget</label>
+                            <input type="number" name="avail_bgt" id="edit_avail" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Year</label>
+                            <input type="year" name="bgt_year" id="edit_year" class="form-control" required>
+                        </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Update</button>
+                        </div>
+
+                    </form>
+                    </div>
+                </div>
+                </div>
+
+{% endblock %}

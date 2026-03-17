@@ -26,33 +26,18 @@
                             <thead>
                                 <tr>
                                 <th>Department</th>
-                                <th>Category</th>
-                                <th>Amount Limit</th>
+                                <th>Total Budget</th>
                                 <th>Available Budget</th>
                                 <th>Year</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for bgt in budgets %}
-                                <tr>
-                                    <td>{{ bgt[1] }}</td>  <!-- Department -->
-                                    <td>{{ bgt[3] }}</td>  <!-- Category -->
-                                    <td>{{ "{:,}".format(bgt[4]|int) }}</td>  <!-- Amount Limit -->
-                                    <td>{{ "{:,}".format(bgt[5]|int) }}</td>  <!-- Available Budget -->
-                                    <td>{{ bgt[6] }}</td>  <!-- Year -->
-                                    <td>
-                                        <button class="btn btn-sm btn-primary"
-                                                data-toggle="modal"
-                                                data-target="#editModal"
-                                                data-id="{{ bgt[0] }}"
-                                                data-dept="{{ bgt[7] }}"
-                                                data-cat="{{ bgt[2] }}"
-                                                data-amt="{{ bgt[4] }}"
-                                                data-avail="{{ bgt[5] }}"
-                                                data-year="{{ bgt[6] }}">Edit
-                                        </button>
-                                        <a href="{{ url_for('admin.delete_budget', budget_id=bgt[0]) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this budget?');">Delete</a>
-                                    </td>
+                                <tr class="clickable-row" data-url="{{ url_for('admin.viewbgtdata', dept_id=bgt[4]) }}">
+                                    <td>{{ bgt[0] }}</td>  <!-- Department -->
+                                    <td>{{ "{:,}".format(bgt[1]|int) }}</td>  <!-- Amount Limit -->
+                                    <td>{{ "{:,}".format(bgt[2]|int) }}</td>  <!-- Available Budget -->
+                                    <td>{{ bgt[3] }}</td>  <!-- Year -->
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -64,59 +49,11 @@
                     </div>
                 </div>
                 </section>
-                <!-- Edit Budget Modal -->
-                <div class="modal fade" id="editModal" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                    <form method="POST" action="{{ url_for('admin.update_budget') }}">
-                        <div class="modal-header">
-                        <h5 class="modal-title">Edit Budget</h5>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-
-                        <div class="modal-body">
-
-                        <input type="hidden" name="budget_id" id="edit_id">
-
-                        <div class="form-group">
-                            <label>Department</label>
-                            <input type="text" name="department" id="edit_dept" class="form-control" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Category</label>
-                            <select class="form-control" name="category" id="edit_cat" required data-msg ="Please select a budget category">
-                                <option value="">Select Budget Category</option>
-                                {% for cat in categories %}
-                                    <option value="{{ cat[0] }}">{{ cat[1] }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Amount Limit</label>
-                            <input type="number" name="amt_lmt" id="edit_amt" class="form-control" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Available Budget</label>
-                            <input type="number" name="avail_bgt" id="edit_avail" class="form-control" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Year</label>
-                            <input type="year" name="bgt_year" id="edit_year" class="form-control" required>
-                        </div>
-
-                        </div>
-
-                        <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Update</button>
-                        </div>
-
-                    </form>
-                    </div>
-                </div>
-                </div>
-
+                <script>
+                document.querySelectorAll(".clickable-row").forEach(row => {
+                    row.addEventListener("click", () => {
+                        window.location = row.dataset.url;
+                    });
+                });
+                </script>
 {% endblock %}

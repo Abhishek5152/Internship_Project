@@ -243,8 +243,31 @@ def viewbgt():
     cursor = conn.cursor()
     try:
         cursor.execute("""
+            SELECT d.dept_name,
+                   SUM(b.amt_lmt) AS total_budget,
+                   SUM(b.avail_bgt) AS available_budget,
+                   b.bgt_year,
+                   b.dept_id
+            FROM eerm_budget b
+            JOIN eerm_dept d ON b.dept_id = d.dept_id
+            GROUP BY b.dept_id, d.dept_name, b.bgt_year
+        """, )
+        budgets = cursor.fetchall()
+        return render_template('admin/admin_viewbgt.html', budgets=budgets)
+    except Exception as e:
+        print("Error fetching budgets:", e)
+        return "Error fetching budgets"
+    finally:
+        cursor.close()
+        
+@admin_bp.route('/viewbgtdata/<int:dept_id>')
+@login_required
+def viewbgtdata(dept_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
             SELECT b.budget_id,
-                   d.dept_name,
                    b.cat_id,
                    c.cat_name,
                    b.amt_lmt,
@@ -253,18 +276,20 @@ def viewbgt():
                    b.dept_id
             FROM eerm_budget b
             JOIN eerm_expcat c ON b.cat_id = c.cat_id
-            JOIN eerm_dept d ON b.dept_id = d.dept_id
-        """)
+            where b.dept_id =%s
+        """, (dept_id))
         budgets = cursor.fetchall()
         cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
         categories = cursor.fetchall()
-        return render_template('admin/admin_viewbgt.html', budgets=budgets, categories=categories)
+        cursor.execute("SELECT dept_name FROM eerm_dept where dept_id=%s", dept_id)
+        dept = cursor.fetchone()
+        return render_template('admin/admin_viewbgtdata.html', budgets=budgets, categories=categories, dept=dept)
     except Exception as e:
         print("Error fetching budgets:", e)
         return "Error fetching budgets"
     finally:
         cursor.close()
-        
+
 
 @admin_bp.route('/update_budget', methods=['POST'])
 @login_required
@@ -487,9 +512,14 @@ def manusers():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT user_id, user_name, user_email, user_role, user_status, created_at FROM eerm_users where user_role != 'Admin'")
+        cursor.execute("""SELECT u.user_id, u.user_name, u.user_email, u.user_role, u.user_status, u.created_at , d.dept_name ,u.dept_id
+        FROM eerm_users u 
+        JOIN eerm_dept d ON u.dept_id = d.dept_id
+        where u.user_role != 'Admin'""")
         users = cursor.fetchall()
-        return render_template('admin/admin_manusers.html', users=users)
+        cursor.execute("SELECT dept_id, dept_name from eerm_dept")
+        department = cursor.fetchall()
+        return render_template('admin/admin_manusers.html', users=users, department = department)
     except Exception as e:
         print("Error fetching users:", e)
         return "Error fetching users"

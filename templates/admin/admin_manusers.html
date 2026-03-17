@@ -29,6 +29,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
+                                <th>Department</th>
                                 <th>Status</th>
                                 <th>created At</th>
                                 </tr>
@@ -40,6 +41,7 @@
                                     <td>{{ user[1] }}</td>  <!-- Name -->
                                     <td>{{ user[2] }}</td>  <!-- Email -->
                                     <td>{{ user[3] }}</td>  <!-- Role -->
+                                    <td>{{ user[6] }}</td>  <!-- Department -->
                                     <td>{{ user[4] }}</td>  <!-- Status -->
                                     <td>{{ user[5].strftime('%d-%m-%Y %H:%M') }}</td>  <!-- Created At -->
                                     <td>
@@ -50,6 +52,7 @@
                                                 data-name="{{ user[1] }}"
                                                 data-email="{{ user[2] }}"
                                                 data-role="{{ user[3] }}"
+                                                data-dept="{{ user[7] }}"
                                                 data-status="{{ user[4] }}">
                                             Edit
                                         </button>
@@ -95,6 +98,16 @@
                                 <option value="">Select User Role</option>
                                 <option value="Manager">Manager</option>
                                 <option value="Employee">Employee</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select class="form-control" name="user_dept" id="edit_dept" required data-msg ="Please select a user Department">
+                                <option value="">Select User Department</option>
+                                {% for dept in department %}
+                                    <option value="{{ dept[0] }}">{{ dept[1] }}</option>
+                                {% endfor %}
                             </select>
                         </div>
 

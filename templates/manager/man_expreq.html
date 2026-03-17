@@ -15,6 +15,36 @@
                     <li class="breadcrumb-item active">Expense Requests</li>
                 </ul>
                 </div>
+                <section class="no-padding-top no-padding-bottom">
+                    <div class="container-fluid">
+                    <div class="row" id="defbar">
+                        <div class="col-md-12 col-sm-12">
+                        <div class="statistic-block block">
+                            <div class="progress-details d-flex align-items-end justify-content-between">
+                                <div class="title">
+                                    <div class="icon"><i class="fa fa-money"></i></div>
+                                    <strong id="budgetTitle">Department Budget</strong>
+                                </div>
+                                <div class="number dashtext-1" id="budgetAmount">
+                                    {{ avail_budget }} / {{ total_budget }}
+                                </div>
+                            </div>
+
+                            <div class="progress progress-template">
+                                <div id="budgetProgress"
+                                    role="progressbar"
+                                    style="width:100%"
+                                    aria-valuenow="100"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    class="progress-bar progress-bar-template dashbg-1">
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                </section>
                 <section class="no-padding-top">
                 <div class="container-fluid">
                     <div class="row">
@@ -37,7 +67,8 @@
                             </thead>
                             <tbody>
                                 {% for exp in expenses %}
-                                <tr>
+                                <tr class="budget-row" data-name="{{ exp[2] }}" data-budget="{{ exp[10] }}" data-total="{{ exp[9] }}"
+                                    data-percent="{{ (exp[10] / exp[9]) * 100 }}">
                                     <td>{{ exp[2] }}</td>  <!-- Exp Type -->
                                     <td>{{ exp[3] }}</td>  <!-- Amount -->
                                     <td>{{ exp[4] }}</td>  <!-- Description -->
@@ -47,7 +78,7 @@
                                     <td>
                                         <a href="{{ exp[7] }}" target="_blank">View Receipt</a>
                                     </td>
-                                    <td>
+                                    <td style="display: flex; gap: 5px;">
                                         {% if exp[6] == 'Pending' %}
                                         <form method="post" action="{{ url_for('manager.expapprove', exp_id=exp[0]) }}">
                                             <button type="submit" class="btn btn-sm btn-success">Approve</button>
@@ -68,4 +99,55 @@
                     </div>
                 </div>
                 </section>
+                <script>
+                document.addEventListener("DOMContentLoaded", function(){
+
+                    const title = document.getElementById("budgetTitle")
+                    const amount = document.getElementById("budgetAmount")
+                    const bar = document.getElementById("budgetProgress")
+
+                    // Store default values
+                    const defaultTitle = title.innerText
+                    const defaultAmount = amount.innerText
+                    const defaultWidth = bar.style.width
+                    const defaultValue = bar.getAttribute("aria-valuenow")
+
+                    // Row click → change budget view
+                    document.querySelectorAll(".budget-row").forEach(row => {
+
+                        row.addEventListener("click", function(e){
+
+                            if(e.target.tagName === "BUTTON") return;
+
+                            let name = this.dataset.name
+                            let budget = parseInt(this.dataset.budget)
+                            let total = parseInt(this.dataset.total)
+                            let percent = parseFloat(this.dataset.percent)
+
+                            title.innerText = name + " Budget"
+                            amount.innerText = budget + " / " + total
+
+                            bar.style.width = percent + "%"
+                            bar.setAttribute("aria-valuenow", percent)
+
+                        })
+
+                    })
+
+                    // Clicking the progress bar → reset to default
+                    defbar.addEventListener("click", function(){
+
+                        title.innerText = defaultTitle
+                        amount.innerText = defaultAmount
+
+                        bar.style.width = defaultWidth
+                        bar.setAttribute("aria-valuenow", defaultValue)
+
+                    })
+
+                })
+                </script>
 {% endblock %}
+
+
+                

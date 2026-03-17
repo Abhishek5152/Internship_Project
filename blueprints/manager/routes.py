@@ -102,14 +102,21 @@ def exprequests():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT e.exp_id, e.user_id, c.cat_name, e.exp_amt, e.exp_desc, e.exp_date, e.exp_status, e.receipt_url, e.created_at
+            SELECT e.exp_id, e.user_id, c.cat_name, e.exp_amt, e.exp_desc, e.exp_date, e.exp_status, e.receipt_url, e.created_at, b.amt_lmt, b.avail_bgt
             FROM eerm_exp e
             JOIN eerm_expcat c ON e.cat_id = c.cat_id
             JOIN eerm_users u ON e.user_id = u.user_id
+            JOIN eerm_budget b ON c.cat_id = b.cat_id AND u.dept_id = b.dept_id
             WHERE u.dept_id = %s AND e.exp_status = 'Pending'
         """, (session.get("dept_id"),))
         expenses = cursor.fetchall()
-        return render_template('manager/man_expreq.html', expenses=expenses)
+        cursor.execute("SELECT SUM(amt_lmt) FROM eerm_budget WHERE dept_id = %s AND avail_bgt IS NOT NULL", (session.get("dept_id"),))
+        result = cursor.fetchone()
+        total_budget = result[0] if result and result[0] else 0
+        cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget WHERE dept_id = %s AND avail_bgt IS NOT NULL", (session.get("dept_id"),))
+        result = cursor.fetchone()
+        avail_budget = result[0] if result and result[0] else 0
+        return render_template('manager/man_expreq.html', expenses=expenses, total_budget=int(total_budget), avail_budget=int(avail_budget))
     except Exception as e:
         print("Error fetching expenses:", e)
         return "Error fetching expenses"
@@ -202,8 +209,8 @@ def viewreq():
             FROM eerm_req r 
             JOIN eerm_users u ON r.user_id = u.user_id
             JOIN eerm_res c ON r.res_id = c.res_id
-            where r.req_status = 'Pending'
-        """)
+            where r.req_status = 'Pending' AND u.dept_id = %s
+        """, (session.get('dept_id'),))
         requests = cursor.fetchall()
         return render_template('manager/man_viewreq.html', requests=requests)
     except Exception as e:
@@ -289,8 +296,8 @@ def reqhistory():
             FROM eerm_req r 
             JOIN eerm_users u ON r.user_id = u.user_id
             JOIN eerm_res c ON r.res_id = c.res_id
-            where r.req_status != 'Pending'
-        """)
+            where r.req_status != 'Pending' AND u.dept_id = %s
+        """, (session.get('dept_id'),))
         requests = cursor.fetchall()
         return render_template('manager/man_reqhistory.html', requests=requests)
     except Exception as e:
@@ -352,7 +359,11 @@ def man_mngprof():
     user_id = session.get('user_id')
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT user_id, user_name, user_email, user_contact, user_address, user_about, user_img_url FROM eerm_users WHERE user_id = %s", (user_id,))
+    cursor.execute("""SELECT u.user_id, u.user_name, u.user_email, u.user_contact, u.user_address, u.user_about, u.user_img_url, d.dept_name
+                   FROM eerm_users u
+                   JOIN eerm_dept d ON u.dept_id = d.dept_id
+                   WHERE u.user_id = %s
+                   """, (user_id,))
     user_data = cursor.fetchone()
     cursor.close()
     
