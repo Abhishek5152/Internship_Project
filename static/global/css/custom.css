@@ -40,3 +40,6 @@ transition: width 0.4s ease;
     cursor: pointer;
 }
 
+.clickable-img{
+    cursor: pointer;
+}

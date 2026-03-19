@@ -1,6 +1,7 @@
 import cloudinary
 from dotenv import load_dotenv
 import os
+import pymysql
 
 load_dotenv()
 
@@ -68,6 +69,42 @@ def inject_user():
         }
 
     return {}
+
+@app.context_processor
+def inject_notifications():
+    from database import get_db_connection
+
+    conn = get_db_connection()
+
+    if 'user_id' not in session:
+        return dict(unread_count=0, notifications=[])
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    user_id = session['user_id']
+
+    cursor.execute("""
+        SELECT COUNT(*) AS count
+        FROM eerm_notifs
+        WHERE user_id = %s AND read_at IS NULL AND is_deleted = 0
+    """, (user_id,))
+    unread_count = cursor.fetchone()['count']
+
+    cursor.execute("""
+        SELECT message, created_at
+        FROM eerm_notifs
+        WHERE user_id = %s AND is_deleted = 0
+        ORDER BY created_at DESC
+        LIMIT 5
+    """, (user_id,))
+    notifications = cursor.fetchall()
+
+    return dict(
+        unread_count=unread_count,
+        notifications=notifications
+    )
+
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

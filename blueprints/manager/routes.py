@@ -226,7 +226,12 @@ def reqapprove(req_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("UPDATE eerm_req SET req_status = 'Approved' WHERE req_id = %s", (req_id,))
+        cursor.execute("""
+            UPDATE eerm_req r
+            JOIN eerm_res c ON r.res_id = c.res_id
+            SET r.req_status = 'Approved'
+            WHERE r.req_id = %s AND c.res_status = 'Available'
+            """, (req_id,))  
         cursor.execute("""
             INSERT INTO eerm_alloc (res_id, user_id, alloc_date, ret_date)
             SELECT res_id, 
@@ -236,6 +241,9 @@ def reqapprove(req_id):
             FROM eerm_req 
             WHERE req_id = %s
         """, (req_id,))
+        cursor.execute("SELECT res_id from eerm_req where req_id = %s ", req_id)
+        res_id = cursor.fetchone()
+        cursor.execute("UPDATE eerm_res SET res_status = 'Allocated' where res_id = %s and res_type = 'Shared'",(res_id))
         conn.commit()
         add_log(
             conn,
@@ -297,6 +305,7 @@ def reqhistory():
             JOIN eerm_users u ON r.user_id = u.user_id
             JOIN eerm_res c ON r.res_id = c.res_id
             where r.req_status != 'Pending' AND u.dept_id = %s
+            ORDER BY r.req_date DESC
         """, (session.get('dept_id'),))
         requests = cursor.fetchall()
         return render_template('manager/man_reqhistory.html', requests=requests)

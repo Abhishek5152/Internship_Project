@@ -3,6 +3,7 @@ from database import get_db_connection
 from utils import login_required, add_log
 
 import cloudinary.uploader
+import pymysql
 
 from . import admin_bp
 
@@ -17,7 +18,28 @@ def allowed_file(filename):
 def dashboard():
     conn = get_db_connection()
     cursor = conn.cursor()
+    cursor2 = conn.cursor(pymysql.cursors.DictCursor)
+    user_id = session['user_id']
     try:
+        query = """
+        SELECT n.notif_id, n.message, n.created_at, n.read_at,
+            u.user_name AS actor_name, u.user_img_url
+        FROM eerm_notifs n
+        LEFT JOIN eerm_users u ON n.actor_id = u.user_id
+        WHERE n.user_id = %s AND n.is_deleted = 0
+        ORDER BY n.created_at DESC
+        LIMIT 5"""
+
+        cursor2.execute(query, (user_id,))
+        notifications = cursor2.fetchall()
+
+        cursor2.execute("""
+            SELECT COUNT(*) AS count 
+            FROM eerm_notifs 
+            WHERE user_id = %s AND read_at IS NULL AND is_deleted = 0
+        """, (user_id,))
+        unread_count = cursor2.fetchone()['count']
+
         cursor.execute("SELECT COUNT(*) FROM eerm_users where user_role != 'Admin'")
         users = cursor.fetchone()[0]
 
@@ -52,7 +74,10 @@ def dashboard():
                                bgt_percent=bgt_percent,
                                emp_percent=emp_percent,
                                mgr_percent=mgr_percent,
-                               res_percent=res_percent)
+                               res_percent=res_percent,
+                               notifications = notifications,
+                               unread_count = unread_count
+                               )
         
     except Exception as e:
         print("Error loading dashboard:", e)

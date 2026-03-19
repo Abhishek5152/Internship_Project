@@ -34,25 +34,56 @@
                     <div class="brand-text visible text-uppercase"><strong class="text-primary">Nexus</strong><strong>Portal</strong><h5><small>Admin</small></h5></div></a>
                 </div>
                 <div class="right-menu list-inline no-margin-bottom ml-auto d-flex align-items-center">    
-                <div class="nav-item dropdown mr-3"><a id="navbarDropdownMenuLink1" href="http://example.com" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link messages-toggle"><i class="icon-email"></i><span class="badge dashbg-1">5</span></a>
-                    <div aria-labelledby="navbarDropdownMenuLink1" class="dropdown-menu messages"><a href="#" class="dropdown-item message d-flex align-items-center">
-                        <div class="profile"><img src="{{ url_for('static', filename='global/img/avatar-3.jpg') }}" alt="..." class="img-fluid">
-                        <div class="status online"></div>
-                        </div>
-                        <div class="content">   <strong class="d-block">Nadia Halsey</strong><span class="d-block">lorem ipsum dolor sit amit</span><small class="date d-block">9:30am</small></div></a><a href="#" class="dropdown-item message d-flex align-items-center">
-                        <div class="profile"><img src="{{ url_for('static', filename='global/img/avatar-2.jpg') }}" alt="..." class="img-fluid">
-                        <div class="status away"></div>
-                        </div>
-                        <div class="content">   <strong class="d-block">Peter Ramsy</strong><span class="d-block">lorem ipsum dolor sit amit</span><small class="date d-block">7:40am</small></div></a><a href="#" class="dropdown-item message d-flex align-items-center">
-                        <div class="profile"><img src="{{ url_for('static', filename='global/img/avatar-1.jpg') }}" alt="..." class="img-fluid">
-                        <div class="status busy"></div>
-                        </div>
-                        <div class="content">   <strong class="d-block">Sam Kaheil</strong><span class="d-block">lorem ipsum dolor sit amit</span><small class="date d-block">6:55am</small></div></a><a href="#" class="dropdown-item message d-flex align-items-center">
-                        <div class="profile"><img src="{{ url_for('static', filename='global/img/avatar-5.jpg') }}" alt="..." class="img-fluid">
-                        <div class="status offline"></div>
-                        </div>
-                        <div class="content">   <strong class="d-block">Sara Wood</strong><span class="d-block">lorem ipsum dolor sit amit</span><small class="date d-block">10:30pm</small></div></a><a href="#" class="dropdown-item text-center message"> <strong>See All Messages <i class="fa fa-angle-right"></i></strong></a></div>
-                </div>
+                <div class="nav-item dropdown mr-3">
+                    <a id="navbarDropdownMenuLink1" href="#" data-toggle="dropdown"
+                        class="nav-link messages-toggle">
+                        
+                        <i class="icon-email"></i>
+                        
+                        {% if unread_count > 0 %}
+                        <span class="badge dashbg-1">{{ unread_count }}</span>
+                        {% endif %}
+                        
+                    </a>
+
+                    <div class="dropdown-menu messages">
+
+                        {% if notifications %}
+                            {% for notif in notifications %}
+                            <a href="#" class="dropdown-item message d-flex align-items-center">
+
+                            <div class="profile">
+                                <img src="{{ notif.user_img_url or url_for('static', filename='global/img/avatar-0.jpg') }}"
+                                    class="img-fluid">
+                                <div class="status online"></div>
+                            </div>
+
+                            <div class="content">
+                                <strong class="d-block">
+                                {{ notif.actor_name or "System" }}
+                                </strong>
+
+                                <span class="d-block">
+                                {{ notif.message }}
+                                </span>
+
+                                <small class="date d-block">
+                                {{ notif.created_at.strftime('%I:%M %p') }}
+                                </small>
+                            </div>
+
+                            </a>
+                            {% endfor %}
+
+                            <a href="/all-notifications" class="dropdown-item text-center message">
+                            <strong>See All Messages <i class="fa fa-angle-right"></i></strong>
+                            </a>
+                        {% else %}
+                            <strong>No Messages</strong>
+                        {% endif %}
+
+                    </div>
+                    </div>
                 <div class="nav-item">
                 <a href="{{ url_for('auth.logout') }}" class="nav-link">
                     <i class="icon-logout"></i>
@@ -76,8 +107,10 @@
                         class="img-fluid rounded-circle">
                 {% endif %}</div>
             <div class="title">
-            <h1 class="h5">{{ current_user_name }}</h1>
-            <p>{{ current_user_role }}</p>
+                <a href="{{url_for('admin.mngprof')}}">
+                <h1 class="h5">{{ current_user_name }}</h1>
+                <p>{{ current_user_role }}</p>
+                </a>
             {%endif %}
             </div>
         </div>
@@ -118,8 +151,7 @@
             <a href="{{ url_for('admin.manusers') }}"> <i class="fa fa-users"></i>Manage Users </a></li>
             <li class="{% if request.path == url_for('admin.viewlogs') %}active{% endif %}">
             <a href="{{ url_for('admin.viewlogs') }}"> <i class="fa fa-list"></i>Audit Logs </a></li>
-            <li class="{% if request.path == url_for('admin.mngprof') %}active{% endif %}">
-            <a href="{{url_for('admin.mngprof')}}"> <i class="icon-user"></i>My Profile </a></li>
+            
             
         </ul>
         </nav>
