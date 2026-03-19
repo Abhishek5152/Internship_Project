@@ -80,10 +80,10 @@
                                     </td>
                                     <td style="display: flex; gap: 5px;">
                                         {% if exp[6] == 'Pending' %}
-                                        <form method="post" action="{{ url_for('manager.expapprove', exp_id=exp[0]) }}">
+                                        <form method="post" action="{{ url_for('manager.expapprove', exp_id=exp[0], user_id = exp[1]) }}">
                                             <button type="submit" class="btn btn-sm btn-success">Approve</button>
                                         </form>
-                                        <form method="post" action="{{ url_for('manager.expdeny', exp_id=exp[0]) }}">
+                                        <form method="post" action="{{ url_for('manager.expdeny', exp_id=exp[0], user_id = exp[1]) }}">
                                             <button type="submit" class="btn btn-sm btn-danger">Deny</button>
                                         </form>
                                         {% endif %}

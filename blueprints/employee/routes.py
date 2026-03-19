@@ -1,6 +1,7 @@
 from flask import render_template, request, redirect, url_for, session
 from database import get_db_connection
 from utils import login_required, add_log
+from services.notif_service import create_notif
 
 import cloudinary.uploader
 import uuid
@@ -94,6 +95,7 @@ def new_request():
             res_id,
         f"Created new request for resource ID {res_id}"
     )
+    
     conn.commit()
     msg = "Request submitted successfully"
     return redirect(url_for('employee.myrequests', msg=msg))

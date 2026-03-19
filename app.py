@@ -84,17 +84,19 @@ def inject_notifications():
     user_id = session['user_id']
 
     cursor.execute("""
-        SELECT COUNT(*) AS count
-        FROM eerm_notifs
+        SELECT COUNT(*) AS count 
+        FROM eerm_notifs 
         WHERE user_id = %s AND read_at IS NULL AND is_deleted = 0
     """, (user_id,))
     unread_count = cursor.fetchone()['count']
 
     cursor.execute("""
-        SELECT message, created_at
-        FROM eerm_notifs
-        WHERE user_id = %s AND is_deleted = 0
-        ORDER BY created_at DESC
+        SELECT n.notif_id, n.message, n.created_at, n.read_at,
+        u.user_name AS actor_name, u.user_img_url
+        FROM eerm_notifs n
+        LEFT JOIN eerm_users u ON n.actor_id = u.user_id
+        WHERE n.user_id = %s AND n.is_deleted = 0
+        ORDER BY n.created_at DESC
         LIMIT 5
     """, (user_id,))
     notifications = cursor.fetchall()

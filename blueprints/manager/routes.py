@@ -1,6 +1,7 @@
 from flask import render_template, request, redirect, url_for, session
 from database import get_db_connection
 from utils import login_required, add_log
+from services.notif_service import create_notif
 
 import cloudinary.uploader
 
@@ -123,21 +124,18 @@ def exprequests():
     finally:
         cursor.close()
 
-@man_bp.route('/expapprove/<int:exp_id>', methods=['POST'])
+@man_bp.route('/expapprove/<int:exp_id>,<int:user_id>', methods=['POST'])
 @login_required
-def expapprove(exp_id):
+def expapprove(exp_id, user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT exp_amt FROM eerm_exp WHERE exp_id = %s", (exp_id,))
         result = cursor.fetchone()
-        print("Expense amount:", result)
         cursor.execute("SELECT cat_id FROM eerm_exp WHERE exp_id = %s", (exp_id,))
         cat_result = cursor.fetchone()
-        print("Expense category ID:", cat_result)
         cursor.execute("select avail_bgt from eerm_budget where dept_id = %s AND cat_id = %s", (session.get("dept_id"), cat_result[0]))
         budget_result = cursor.fetchone()
-        print("Available budget:", budget_result)
         if result is None or budget_result is None:
             return "Expense or budget not found"
         else:
@@ -159,6 +157,17 @@ def expapprove(exp_id):
             exp_id,
             f"Approved expense with ID {exp_id}"
         )
+
+        create_notif(
+            user_id= user_id,
+            actor_id= session['user_id'],
+            notif_type='expense_approved',
+            message='Your expense request has been approved',
+            reference_id= exp_id,
+            reference_table='eerm_exp',
+            priority='high'
+        )
+
         msg = "Expense approved successfully"
         return redirect(url_for('manager.exprequests', msg=msg))
     except Exception as e:
@@ -167,9 +176,9 @@ def expapprove(exp_id):
     finally:
         cursor.close()
 
-@man_bp.route('/expdeny/<int:exp_id>', methods=['POST'])
+@man_bp.route('/expdeny/<int:exp_id>,<int:user_id>', methods=['POST'])
 @login_required
-def expdeny(exp_id):
+def expdeny(exp_id, user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -183,6 +192,17 @@ def expdeny(exp_id):
             exp_id,
             f"Rejected expense with ID {exp_id}"
         )
+
+        create_notif(
+            user_id= user_id,
+            actor_id= session['user_id'],
+            notif_type='expense_Rejected',
+            message='Your expense request has been Rejected',
+            reference_id= exp_id,
+            reference_table='eerm_exp',
+            priority='high'
+        )
+
         msg = "Expense rejected successfully"
         return redirect(url_for('manager.exprequests', msg=msg))
     except Exception as e:
@@ -220,9 +240,9 @@ def viewreq():
         cursor.close()
         
 
-@man_bp.route('/reqapprove/<int:req_id>', methods=['POST'])
+@man_bp.route('/reqapprove/<int:req_id>,<int:user_id>', methods=['POST'])
 @login_required
-def reqapprove(req_id):
+def reqapprove(req_id,user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -253,6 +273,17 @@ def reqapprove(req_id):
             req_id,
             f"Approved request with ID {req_id}"
         )
+
+        create_notif(
+            user_id= user_id,
+            actor_id= session['user_id'],
+            notif_type='Resource_approved',
+            message='Your Resource request has been Approved',
+            reference_id= req_id,
+            reference_table='eerm_req',
+            priority='high'
+        )
+
         msg = "Request approved successfully"
         return redirect(url_for('manager.viewreq', msg=msg))
     except Exception as e:
@@ -262,9 +293,9 @@ def reqapprove(req_id):
         cursor.close()
         
 
-@man_bp.route('/reqreject/<int:req_id>', methods=['POST'])
+@man_bp.route('/reqreject/<int:req_id>,<int:user_id>', methods=['POST'])
 @login_required
-def reqreject(req_id):
+def reqreject(req_id, user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
@@ -278,6 +309,17 @@ def reqreject(req_id):
             req_id,
             f"Rejected request with ID {req_id}"
         )
+
+        create_notif(
+            user_id= user_id,
+            actor_id= session['user_id'],
+            notif_type='Resource_Rejected',
+            message='Your Resource request has been Rejected',
+            reference_id= req_id,
+            reference_table='eerm_req',
+            priority='high'
+        )
+
         msg = "Request rejected successfully"
         return redirect(url_for('manager.viewreq', msg=msg))
     except Exception as e:
