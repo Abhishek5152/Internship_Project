@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, session
 from database import get_db_connection
 from utils import login_required, add_log
-from services.notif_service import create_notif
+from services.notif_service import manager_broadcast
 
 import cloudinary.uploader
 import pymysql
@@ -108,6 +108,13 @@ def add_resource():
             f"Added new resource: {res_name} of type {res_type}"
         )
 
+        manager_broadcast(
+            message=f"new resource: {res_name} of type {res_type} has been Added",
+            notif_type="system_alert",
+            actor_id=session['user_id'],
+            priority="high"
+        )
+
         conn.commit()
         msg = "Resource added successfully"
         return redirect(url_for('admin.viewres', msg=msg))
@@ -169,6 +176,13 @@ def toggle_resource_status(res_id):
             f"Changed resource status to {new_status}"
         )
 
+        manager_broadcast(
+            message=f"Resource Status for resource ID {res_id} has changed to {new_status}",
+            notif_type="system_alert",
+            actor_id=session['user_id'],
+            priority="high"
+        )
+
         msg = "Resource status updated successfully"
         return redirect(url_for('admin.viewres', msg=msg))
 
@@ -228,6 +242,7 @@ def add_budget():
             f"Created budget for {bgt_dept} with category {bgt_cat} and amount limit {bgt_amtlmt}"
         )
 
+        
 
         conn.commit()
         msg = "Budget added successfully"
@@ -405,6 +420,13 @@ def add_policy():
             f"Added new policy: {poli_type} with rule {poli_rule} for category {exp_cat}"
         )
 
+        manager_broadcast(
+            message=f"Added new policy: {poli_type} with rule {poli_rule} for category {exp_cat}",
+            notif_type="system_alert",
+            actor_id=session['user_id'],
+            priority="high"
+        )
+
         conn.commit()
         msg = "Policy added successfully"
         return redirect(url_for('admin.viewpoli', msg=msg))
@@ -477,6 +499,13 @@ def update_policy():
             f"Updated policy with ID {poli_id}"
         )
 
+        manager_broadcast(
+            message=f"Updated Policy For policy ID {poli_id}",
+            notif_type="system_alert",
+            actor_id=session['user_id'],
+            priority="high"
+        )
+
         conn.commit()
         msg = "Policy updated successfully"
         return redirect(url_for('admin.viewpoli', msg=msg))
@@ -502,6 +531,14 @@ def delete_policy(poli_id):
             poli_id,
             f"Deleted policy with ID {poli_id}"
         )
+
+        manager_broadcast(
+            message=f"Policy with policy ID {poli_id} has been discontinued",
+            notif_type="system_alert",
+            actor_id=session['user_id'],
+            priority="high"
+        )
+
         conn.commit()
         msg = "Policy deleted successfully"
         return redirect(url_for('admin.viewpoli', msg=msg))
