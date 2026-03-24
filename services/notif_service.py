@@ -12,7 +12,7 @@ def create_notif(
     channel='in_app'
 ):
     try:
-        conn = get_db_connection()
+        conn = get_db_connection()                          
         cursor = conn.cursor()
 
         query = """
