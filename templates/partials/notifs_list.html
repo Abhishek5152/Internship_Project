@@ -1,0 +1,16 @@
+{% for notif in notifications %}
+<div class="notif-item {% if notif.read_at is none %}unread{% endif %}" >
+    
+    <div class="d-flex justify-content-between">
+        <strong>{{ notif.actor_name or "System" }}</strong>
+        <small class="text-muted">
+            {{ notif.created_at.strftime('%d %b %I:%M %p') }}
+        </small>
+    </div>
+
+    <div class="notif-message">
+        {{ notif.message }}
+    </div><br>
+
+</div>
+{% endfor %}

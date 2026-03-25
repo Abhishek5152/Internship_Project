@@ -75,7 +75,7 @@
                             </a>
                             {% endfor %}
 
-                            <a href="/all-notifications" class="dropdown-item text-center message">
+                            <a href="#" class="dropdown-item text-center message" onclick="openNotifModal()">
                             <strong>See All Messages <i class="fa fa-angle-right"></i></strong>
                             </a>
                         {% else %}
@@ -165,6 +165,24 @@
                     </div>
                 </div>
             </footer>
+        </div>
+        <!-- Notifications Modal -->
+        <div class="modal fade" id="notifModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">All Notifications</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body" id="notifModalBody">
+                <!-- Notifications will load here -->
+                <div class="text-center">Loading...</div>
+            </div>
+
+            </div>
+        </div>
         </div>
         <!-- JavaScript files-->
         <script src="{{ url_for('static', filename='global/vendor/jquery/jquery.min.js') }}"></script>
@@ -264,6 +282,17 @@
             $('#edit_user_address').val(button.data('address'));
             $('#edit_user_about').val(button.data('about'));
         });
+        </script>
+        <script>
+        function openNotifModal() {
+            $('#notifModal').modal('show');
+
+            fetch("{{ url_for('manager.all_notifications') }}")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('notifModalBody').innerHTML = data;
+                });
+        }
         </script>
     </body>
 </html>

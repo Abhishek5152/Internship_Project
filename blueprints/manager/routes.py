@@ -4,6 +4,7 @@ from utils import login_required, add_log
 from services.notif_service import create_notif
 
 import cloudinary.uploader
+import pymysql
 
 from . import man_bp
 
@@ -464,3 +465,21 @@ def edit_profile():
     finally:
         cursor.close()
         
+@man_bp.route('/notifications/all')
+def all_notifications():
+    user_id = session['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    cursor.execute("""
+        SELECT n.notif_id, n.message, n.created_at, n.read_at,
+               u.user_name AS actor_name
+        FROM eerm_notifs n
+        LEFT JOIN eerm_users u ON n.actor_id = u.user_id
+        WHERE n.user_id = %s AND n.is_deleted = 0
+        ORDER BY n.created_at DESC
+    """, (user_id,))
+
+    notifications = cursor.fetchall()
+
+    return render_template('partials/notifs_list.html', notifications=notifications)
