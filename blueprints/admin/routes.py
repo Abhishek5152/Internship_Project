@@ -1,10 +1,13 @@
-from flask import render_template, request, redirect, url_for, session
+from flask import render_template, request, redirect, url_for, session, Response
 from database import get_db_connection
 from utils import login_required, add_log
 from services.notif_service import manager_broadcast
 
 import cloudinary.uploader
 import pymysql
+from weasyprint import HTML
+from datetime import datetime
+
 
 from . import admin_bp
 
@@ -790,3 +793,23 @@ def all_notifications():
     notifications = cursor.fetchall()
 
     return render_template('partials/notifs_list.html', notifications=notifications)
+
+def get_logs():
+    conn = get_db_connection()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT l.log_id, u.user_name, l.action, l.entity, l.log_desc, l.created_at FROM eerm_logs l JOIN eerm_users u ON l.user_id = u.user_id ORDER BY created_at DESC LIMIT 100")
+    return cursor.fetchall()
+
+@admin_bp.route('/export-logs-pdf')
+def export_logs_pdf():
+    logs = get_logs() 
+
+    html = render_template("logs_pdf.html", logs=logs, now=datetime.now())
+    print("something does work")
+    pdf = HTML(string=html).write_pdf()
+
+    return Response(
+        pdf,
+        mimetype='application/pdf',
+        headers={"Content-Disposition": "attachment;filename=logs.pdf"}
+    )
