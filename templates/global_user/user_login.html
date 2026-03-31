@@ -60,10 +60,30 @@
                     <div class="form-group text-center">
                       <input type="submit" value="Login" class="btn btn-primary">
                     </div>
-                    </form><small><a href=# >Forgot Password?</a></small><br>
+                    </form><small><label class="link" data-toggle="modal" data-target="#forgotPassModal">Forgot Password?</label></small><br>
                     </form><small>Don't have an account? </small><a href="{{ url_for('auth.user_register') }}" class="signup">Register</a>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Forgot Password Modal -->
+      <div class="modal fade" id="forgotPassModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Forgot Password</h5>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+              <form method="post" action="{{ url_for('auth.forgot_password') }}">
+                <div class="form-group">
+                  <label for="forgot-email">Email</label>
+                  <input type="email" class="form-control" id="forgot-email" name="user_email" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Reset Password</button>
+              </form>
             </div>
           </div>
         </div>

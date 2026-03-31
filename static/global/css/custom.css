@@ -16,6 +16,17 @@ input[type=number] {
     text-decoration: none;
 }
 
+.link {
+    color: #DB6574;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.link:hover {
+    color: #DB6574;
+    text-decoration: underline;
+}
+
 #avatar-img {
     width: 200px;
     height: 200px;

@@ -3,6 +3,8 @@ from database import get_db_connection
 from utils import add_log
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils import validate_password
+from datetime import datetime, timedelta
+import secrets
 
 from . import auth_bp
 
@@ -173,6 +175,84 @@ def userlogin():
     finally:
         cursor.close()
         
+@auth_bp.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        user_email = request.form['user_email']
+
+        cursor.execute("SELECT user_id, user_role FROM eerm_users WHERE user_email = %s", (user_email,))
+        user = cursor.fetchone()
+
+        if user and user[1] == 'Admin':
+            return "Admin accounts cannot reset password through this portal. Please contact the administrator."
+
+        if not user:
+            return "If this email exists, a reset link has been sent."
+
+        token = secrets.token_urlsafe(32)
+        expiry = datetime.utcnow() + timedelta(minutes=15)
+
+        cursor.execute("""
+            INSERT INTO eerm_forpass (user_id, token, expires_at)
+            VALUES (%s, %s, %s)
+        """, (user[0], token, expiry))
+
+        conn.commit()
+
+        # reset_link = url_for('auth.reset_password', token=token, _external=True)
+
+        # msg = "If this email exists, a reset link has been sent."
+
+        return redirect(url_for('auth.reset_password', token=token, _external=True))
+
+    finally:
+        cursor.close()
+
+@auth_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT user_id, expires_at FROM eerm_forpass WHERE token = %s
+        """, (token,))
+        record = cursor.fetchone()
+
+        if not record:
+            return "Invalid or expired token"
+
+        if datetime.utcnow() > record[1]:
+            return "Token expired"
+
+        if request.method == 'POST':
+            new_password = request.form['password']
+
+            errors = validate_password(new_password)
+            if errors:
+                return render_template("global_user/user_resetpass.html", token=token, msg=" ".join(errors))
+
+            hashed = generate_password_hash(new_password)
+
+            cursor.execute("""
+                UPDATE eerm_users SET user_pass = %s WHERE user_id = %s
+            """, (hashed, record[0]))
+
+            cursor.execute("DELETE FROM eerm_forpass WHERE token = %s", (token,))
+
+            conn.commit()
+
+            msg = "Password reset successful! Please log in with your new password."
+            
+            return render_template("global_user/user_login.html", msg=msg)
+
+        return render_template("global_user/user_resetpass.html", token=token)
+
+    finally:
+        cursor.close()
 
 @auth_bp.route('/logout')
 def logout():   
