@@ -1,5 +1,6 @@
 from flask import session, redirect, url_for
 from functools import wraps
+import re
 
 
 def login_required(f):
@@ -21,3 +22,27 @@ def add_log(conn, user_id, action_type, entity_type, entity_id, description):
         """, (user_id, action_type, entity_type, entity_id, description))
     finally:
         cursor.close()
+
+
+def validate_password(password, email=None):
+    errors = []
+
+    if len(password) < 10:
+        errors.append("Password must be at least 10 characters long.")
+
+    if not re.search(r"[A-Z]", password):
+        errors.append("Must contain at least one uppercase letter.")
+
+    if not re.search(r"[a-z]", password):
+        errors.append("Must contain at least one lowercase letter.")
+
+    if not re.search(r"\d", password):
+        errors.append("Must contain at least one number.")
+
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        errors.append("Must contain at least one special character.")
+
+    if email and email.split("@")[0].lower() in password.lower():
+        errors.append("Password cannot contain your email/username.")
+
+    return errors

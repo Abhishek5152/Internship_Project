@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, url_for, session
 from database import get_db_connection
 from utils import add_log
 from werkzeug.security import generate_password_hash, check_password_hash
+from utils import validate_password
 
 from . import auth_bp
 
@@ -85,6 +86,11 @@ def register_user():
             msg = "Email already registered"
             return redirect(url_for('auth.user_register', msg=msg))
 
+        errors = validate_password(reg_pass, reg_email)
+
+        if errors:
+            return redirect(url_for('auth.user_register', msg=" ".join(errors)))
+        
         register_pass = generate_password_hash(reg_pass)
 
         cursor.execute("""
