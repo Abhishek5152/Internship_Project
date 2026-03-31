@@ -21,6 +21,8 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='global/css/custom.css') }}">
         <!-- Favicon-->
         <link rel="shortcut icon" href="{{ url_for('static', filename='global/img/favicon_0.ico') }}">
+        <!-- ADD Your own font awsome kit link -->
+        <script src="https://kit.fontawesome.com/f8923a9c44.js" crossorigin="anonymous"></script>
         <!-- Tweaks for older IEs--><!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
             <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
@@ -38,7 +40,7 @@
                     <a id="navbarDropdownMenuLink1" href="#" data-toggle="dropdown"
                         class="nav-link messages-toggle">
                         
-                        <i class="icon-email"></i>
+                        <i class="fa-regular fa-message"></i>
                         
                         {% if unread_count > 0 %}
                         <span class="badge dashbg-1">{{ unread_count }}</span>
@@ -86,7 +88,7 @@
                     </div>
                 <div class="nav-item">
                 <a href="{{ url_for('auth.logout') }}" class="nav-link">
-                    <i class="icon-logout"></i>
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </a>
                 </div>
             </div>
@@ -96,16 +98,19 @@
         <!-- Sidebar Navigation-->
         <nav id="sidebar">
         <!-- Sidebar Header-->
-        <div class="sidebar-header d-flex align-items-center">
+        <div class="sidebar-header d-flex align-items-center clickable-row">
             {% if session.get("user_id") %}
             <div class="avatar">
+                <a href="{{url_for('admin.mngprof')}}">
                 {% if current_user_img %}
                     <img src="{{ current_user_img }}" alt="..."
                         class="img-fluid rounded-circle">
                 {% else %}
                     <img src="{{ url_for('static', filename='global/img/avatar-x.jpg') }}" alt="..."
                         class="img-fluid rounded-circle">
-                {% endif %}</div>
+                {% endif %}
+                </a>
+            </div>
             <div class="title">
                 <a href="{{url_for('admin.mngprof')}}">
                 <h1 class="h5">{{ current_user_name }}</h1>
@@ -115,13 +120,13 @@
             </div>
         </div>
         <!-- Sidebar Navidation Menus-->
-         <span class="heading">Main</span>
+         <span class="heading"> Main</span>
         <ul class="list-unstyled">
-            <li class="{% if request.path == url_for('admin.dashboard') %}active{% endif %}">
-            <a href="{{ url_for('admin.dashboard') }}"> <i class="icon-home"></i>Home </a></li>
+            <li class="{% if request.path == url_for('admin.dashboard') %}active{% endif %}"> 
+            <a href="{{ url_for('admin.dashboard') }}"> <i class="fa-regular fa-house"> </i> Home </a></li>
             <li><a href="#ManageResources" data-toggle="collapse" aria-expanded="{% if request.path in [url_for('admin.addres'),url_for('admin.viewres')] %}true{% else %}false{% endif %}"
             class="{% if request.path in [url_for('admin.addres'),url_for('admin.viewres')] %}{% else %}collapsed{% endif %}">
-            <i class="fa fa-cubes"></i>Resources</a>
+            <i class="fa fa-cubes"></i> Resources</a>
                 <ul id="ManageResources" class="collapse list-unstyled {% if request.path in [url_for('admin.addres'),url_for('admin.viewres')] %}show{% endif %}">            
                 <li class="{% if request.path == url_for('admin.addres') %}active{% endif %}"><a href="{{ url_for('admin.addres') }}">Add Resource</a></li>
                 <li class="{% if request.path == url_for('admin.viewres') %}active{% endif %}"><a href="{{ url_for('admin.viewres') }}">View Resources</a></li>
@@ -133,7 +138,7 @@
                 class="{% if request.path.startswith('/admin/viewbgtdata') 
                     or request.path == url_for('admin.addbgt') 
                     or request.path == url_for('admin.viewbgt') %}{% else %}collapsed{% endif %}">
-            <i class="fa fa-money"></i>Budget</a>
+            <i class="fa fa-money"></i> Budget</a>
                 <ul id="Managebudget" class="collapse list-unstyled {% if request.path in [url_for('admin.addbgt'),url_for('admin.viewbgt')] or request.path.startswith('/admin/viewbgtdata') %}show{% endif %}">
                 <li class="{% if request.path == url_for('admin.addbgt') %}active{% endif %}"><a href="{{ url_for('admin.addbgt') }}">Add Budget</a></li>
                 <li class="{% if request.path == url_for('admin.viewbgt') or request.path.startswith('/admin/viewbgtdata') %}active{% endif %}"><a href="{{ url_for('admin.viewbgt') }}">View Budget</a></li>
@@ -141,16 +146,16 @@
             </li>
             <li><a href="#Managepolicies" data-toggle="collapse" aria-expanded="{% if request.path in [url_for('admin.addpoli'),url_for('admin.viewpoli')] %}true{% else %}false{% endif %}"
             class="{% if request.path in [url_for('admin.addpoli'),url_for('admin.viewpoli')] %}{% else %}collapsed{% endif %}">
-            <i class="fa fa-file-text"></i>Policies</a>
+            <i class="fa fa-file-text"></i> Policies</a>
                 <ul id="Managepolicies" class="collapse list-unstyled {% if request.path in [url_for('admin.addpoli'),url_for('admin.viewpoli')] %}show{% endif %}">
                 <li class="{% if request.path == url_for('admin.addpoli') %}active{% endif %}"><a href="{{ url_for('admin.addpoli') }}">Add Policies</a></li>
                 <li class="{% if request.path == url_for('admin.viewpoli') %}active{% endif %}"><a href="{{ url_for('admin.viewpoli') }}">View Policies</a></li>
                 </ul>
             </li>
             <li class="{% if request.path == url_for('admin.manusers') %}active{% endif %}">
-            <a href="{{ url_for('admin.manusers') }}"> <i class="fa fa-users"></i>Manage Users </a></li>
+            <a href="{{ url_for('admin.manusers') }}"> <i class="fa-solid fa-user-group"></i> Manage Users </a></li>
             <li class="{% if request.path == url_for('admin.viewlogs') %}active{% endif %}">
-            <a href="{{ url_for('admin.viewlogs') }}"> <i class="fa fa-list"></i>Audit Logs </a></li>
+            <a href="{{ url_for('admin.viewlogs') }}"> <i class="fa fa-list"></i> Audit Logs </a></li>
             
             
         </ul>
@@ -193,6 +198,7 @@
         <script src="{{ url_for('static', filename='global/vendor/jquery-validation/jquery.validate.min.js') }}"></script>
         <script src="{{ url_for('static', filename='global/js/charts-home.js') }}"></script>
         <script src="{{ url_for('static', filename='global/js/front.js') }}"></script>
+        <script src="https://kit.fontawesome.com/f8923a9c44.js" crossorigin="anonymous"></script>
         <script>
             document.getElementById("poli_type").addEventListener("change", function() {
 

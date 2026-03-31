@@ -40,11 +40,11 @@
                                         <label for="photoInput">
                                             {% if user_data[6] %}
                                                 <img src="{{ user_data[6] }}"
-                                                    class="img-fluid rounded-circle mb-3"
+                                                    class="img-fluid rounded-circle mb-3 clickable-img"
                                                     style="max-width:200px;">
                                             {% else %}
                                                 <img src="{{ url_for('static', filename='global/img/avatar-x.jpg') }}"
-                                                    class="img-fluid rounded-circle mb-3"
+                                                    class="img-fluid rounded-circle mb-3 clickable-img"
                                                     style="max-width:200px;">
                                             {% endif %}
                                         </label>

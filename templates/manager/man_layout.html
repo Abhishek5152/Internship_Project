@@ -21,6 +21,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='global/css/custom.css') }}">
         <!-- Favicon-->
         <link rel="shortcut icon" href="{{ url_for('static', filename='global/img/favicon_0.ico') }}">
+        <script src="https://kit.fontawesome.com/f8923a9c44.js" crossorigin="anonymous"></script>
         <!-- Tweaks for older IEs--><!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
             <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
@@ -38,7 +39,7 @@
                     <a id="navbarDropdownMenuLink1" href="#" data-toggle="dropdown"
                         class="nav-link messages-toggle">
                         
-                        <i class="icon-email"></i>
+                        <i class="fa-regular fa-message"></i>
                         
                         {% if unread_count > 0 %}
                         <span class="badge dashbg-1">{{ unread_count }}</span>
@@ -85,7 +86,7 @@
                     </div>
                 <div class="nav-item">
                 <a href="{{ url_for('auth.logout') }}" class="nav-link align-items-center d-flex">
-                    <i class="icon-logout"></i>
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </a>
                 </div>
             </div>
@@ -95,9 +96,10 @@
         <!-- Sidebar Navigation-->
         <nav id="sidebar">
         <!-- Sidebar Header-->
-        <div class="sidebar-header d-flex align-items-center">
+        <div class="sidebar-header d-flex align-items-center clickable-row">
             {% if session.get("user_id") %}
             <div class="avatar">
+                <a href="{{ url_for('manager.man_mngprof') }}">
                 {% if current_user_img %}
                     <img src="{{ current_user_img }}" alt="..."
                         class="img-fluid rounded-circle">
@@ -105,6 +107,7 @@
                     <img src="{{ url_for('static', filename='global/img/avatar-x.jpg') }}" alt="..."
                         class="img-fluid rounded-circle">
                 {% endif %}
+                </a>
             </div>
             <div class="title">
                 <a href="{{ url_for('manager.man_mngprof') }}">
@@ -117,21 +120,21 @@
         <!-- Sidebar Navidation Menus--><span class="heading">Main</span>
         <ul class="list-unstyled">
             <li class="{% if request.path == url_for('manager.mandash') %}active{% endif %}">
-            <a href="{{ url_for('manager.mandash') }}"> <i class="icon-home"></i>Home </a></li>
+            <a href="{{ url_for('manager.mandash') }}"> <i class="fa-regular fa-house"></i>Home </a></li>
             <li><a href="#ManageExpense" data-toggle="collapse" aria-expanded="{% if request.path in [url_for('manager.exprequests'),url_for('manager.viewexpense')] %}true{% else %}false{% endif %}"
             class="{% if request.path in [url_for('manager.exprequests'),url_for('manager.viewexpense')] %}{% else %}collapsed{% endif %}">
-            <i class="fa fa-list"></i>Expense</a>
+            <i class="fa-solid fa-receipt"></i>Expense</a>
                 <ul id="ManageExpense" class="collapse list-unstyled {% if request.path in [url_for('manager.exprequests'),url_for('manager.viewexpense')] %}show{% endif %}">            
                 <li class="{% if request.path == url_for('manager.exprequests') %}active{% endif %}"><a href="{{ url_for('manager.exprequests') }}">Expense Requests</a></li>
                 <li class="{% if request.path == url_for('manager.viewexpense') %}active{% endif %}"><a href="{{ url_for('manager.viewexpense') }}">View Expenses</a></li>
                 </ul>
             </li>
             <li class="{% if request.path == url_for('manager.viewreq') %}active{% endif %}">
-            <a href="{{ url_for('manager.viewreq') }}"> <i class="icon-padnote"></i>View Requests </a></li>
+            <a href="{{ url_for('manager.viewreq') }}"> <i class="fa-regular fa-clipboard"></i></i>View Requests </a></li>
             <li class="{% if request.path == url_for('manager.reqhistory') %}active{% endif %}">
-            <a href="{{ url_for('manager.reqhistory') }}"> <i class="icon-list"></i>Request History </a></li>
+            <a href="{{ url_for('manager.reqhistory') }}"> <i class="fa fa-list"></i>Request History </a></li>
             <li class="{% if request.path == url_for('manager.manusers_m') %}active{% endif %}">
-            <a href="{{ url_for('manager.manusers_m') }}"> <i class="fa fa-users"></i>Manage Users </a></li>
+            <a href="{{ url_for('manager.manusers_m') }}"> <i class="fa-solid fa-user-group"></i>Manage Users </a></li>
             
         </ul>
         </nav>
