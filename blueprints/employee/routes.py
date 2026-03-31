@@ -211,7 +211,7 @@ def submitexpense():
         cursor.execute("INSERT INTO eerm_exp (user_id, cat_id, exp_amt, exp_desc, exp_date, receipt_url) VALUES (%s, %s, %s, %s, %s, %s)", (user_id, exp_type, exp_amount, exp_desc, exp_date, receipt_url))
         conn.commit()
         msg = "Expense submitted successfully"
-        return redirect(url_for('employee.addexpense', msg=msg))
+        return redirect(url_for('employee.viewrequests', msg=msg))
     except Exception as e:
         print("Error submitting expense:", e)
     finally:

@@ -1,6 +1,7 @@
 from flask import render_template, request, redirect, url_for, session
 from database import get_db_connection
 from utils import add_log
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from . import auth_bp
 
@@ -17,10 +18,10 @@ def admin_login():
     try:
         admin_email = request.form['admin_email']
         admin_pass = request.form['admin_pass']
-        cursor.execute("SELECT * FROM eerm_users WHERE user_email = %s AND user_pass = %s", (admin_email, admin_pass))
+        cursor.execute("SELECT * FROM eerm_users WHERE user_email = %s", (admin_email,))
         admin = cursor.fetchone()
         cursor.close()
-        if admin:
+        if admin and check_password_hash(admin[3], admin_pass):
             session["user_id"] = admin[0]
             session["user_name"] = admin[1]
             session["user_email"] = admin[2]
@@ -84,10 +85,12 @@ def register_user():
             msg = "Email already registered"
             return redirect(url_for('auth.user_register', msg=msg))
 
+        register_pass = generate_password_hash(reg_pass)
+
         cursor.execute("""
             INSERT INTO eerm_users (user_name, user_email, user_pass, user_role, user_status, dept_id)
             VALUES (%s, %s, %s, 'Employee', 'Active', %s)
-        """, (reg_name, reg_email, reg_pass, reg_dept))
+        """, (reg_name, reg_email, register_pass, reg_dept))
         conn.commit()
 
         add_log(
@@ -120,13 +123,15 @@ def userlogin():
     try:
         user_email = request.form['user_email']
         user_pass = request.form['user_pass']
-        cursor.execute("SELECT * FROM eerm_users WHERE user_email = %s AND user_pass = %s", (user_email, user_pass))
+        cursor.execute("SELECT * FROM eerm_users WHERE user_email = %s", (user_email,))
         user = cursor.fetchone()
-        if user:
+        if user and check_password_hash(user[3], user_pass):
             session["user_id"] = user[0]
             session["user_name"] = user[1]
             session["user_role"] = user[4]
             session["dept_id"] = user[5]
+
+
 
             add_log(
                 conn,
