@@ -54,3 +54,7 @@ transition: width 0.4s ease;
 .clickable-img{
     cursor: pointer;
 }
+
+body.modal-open {
+    padding-right: 0 !important;
+}
