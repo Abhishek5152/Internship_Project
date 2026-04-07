@@ -1,6 +1,6 @@
-from flask import render_template, request, redirect, url_for, session
+from flask import jsonify, render_template, request, redirect, url_for, session
 from database import get_db_connection
-from utils import add_log
+from utils import add_log, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils import validate_password
 from datetime import datetime, timedelta
@@ -268,3 +268,49 @@ def logout():
         )
     session.clear()
     return redirect(url_for('auth.user_login'))
+
+@auth_bp.route('/set_password', methods=['GET', 'POST'])
+@login_required
+def set_password():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.user_login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        if request.method == 'POST':
+            current_pass = request.form['current_password']
+            new_pass = request.form['new_password']
+            confirm_pass = request.form['confirm_password']
+
+            if new_pass != confirm_pass:
+                return jsonify({'status': 'error', 'message': "New password and confirmation do not match."})
+
+            cursor.execute("SELECT user_pass FROM eerm_users WHERE user_id = %s", (session['user_id'],))
+            user = cursor.fetchone()
+
+            if not user or not check_password_hash(user[0], current_pass):
+                msg = "Incorrect Password"
+                return jsonify({'status': 'error', 'message': msg})
+
+            errors = validate_password(new_pass)
+            if errors:
+                return jsonify({'status': 'error', 'message': " ".join(errors)})
+            
+            hashed = generate_password_hash(new_pass)
+
+            cursor.execute("""
+                UPDATE eerm_users SET user_pass = %s WHERE user_id = %s
+            """, (hashed, session['user_id']))
+
+            conn.commit()
+
+            return jsonify({'status': 'success', 'message': 'Password updated successfully!'})
+
+    except Exception as e:
+        print("Error setting admin password:", e)
+        return jsonify({'status': 'error', 'message': 'An error occurred while updating the password.'})
+
+    finally:
+        cursor.close()

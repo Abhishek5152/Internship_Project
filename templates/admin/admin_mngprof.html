@@ -22,16 +22,19 @@
                         <div class="block">
                         <div class="title d-flex justify-content-between align-items-center">
                             <strong>My Profile</strong>
-                            <button class="btn btn-sm btn-primary" data-toggle="modal" 
-                            data-target="#editprof"
-                            data-id="{{ user_data[0] }}"
-                            data-name="{{ user_data[1] }}"
-                            data-contact="{{ user_data[3] }}"
-                            data-address="{{ user_data[4] }}"
-                            data-about="{{ user_data[5] }}"
-                            
-                            >Edit Profile</button>
+                            <div class="align-items-right">
+                                <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#resetpass">Reset Password</button>
+                                <button class="btn btn-sm btn-primary" data-toggle="modal" 
+                                data-target="#editprof"
+                                data-id="{{ user_data[0] }}"
+                                data-name="{{ user_data[1] }}"
+                                data-contact="{{ user_data[3] }}"
+                                data-address="{{ user_data[4] }}"
+                                data-about="{{ user_data[5] }}"
+                                >Edit Profile</button>
+                            </div>
                         </div>
+                        
                             <div class="row align-items-center">
     
                                 <div class="col-md-4 text-center">
@@ -87,7 +90,7 @@
                     </div>
                 </div>
                 </section>
-                <!-- Edit Budget Modal -->
+                <!-- Edit Profile Modal -->
                 <div class="modal fade" id="editprof" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -153,5 +156,112 @@
                     </div>
                 </div>
                 </div>
+                <!-- Reset Password Modal -->
+                <div class="modal fade" id="resetpass" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <form id="resetpasswordform" method="POST" action="{{ url_for('auth.set_password') }}" enctype="multipart/form-data">
+                        <div class="modal-header">
+                        <h5 class="modal-title">Reset Password</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="current_password" name="current_password" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="new_password" name="new_password" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                            <small id="password_match_msg"></small>
+                        </div>
+
+                        <div>
+                            <button type="submit" class="btn btn-success">Reset Password</button>
+                        </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+                </div>
+                <script>
+                    const newPassInput = document.getElementById("new_password");
+                    const confirmPassInput = document.getElementById("confirm_password");
+                    const msg = document.getElementById("password_match_msg");
+
+                    function checkPasswordMatch() {
+                        const newPass = newPassInput.value;
+                        const confirmPass = confirmPassInput.value;
+
+                        if (!confirmPass) {
+                            msg.textContent = "";
+                            return;
+                        }
+
+                        if (newPass === confirmPass) {
+                            msg.textContent = "Passwords match";
+                            msg.style.color = "green";
+                        } else {
+                            msg.textContent = "Passwords do not match";
+                            msg.style.color = "red";
+                        }
+                    }
+
+                    newPassInput.addEventListener("input", checkPasswordMatch);
+                    confirmPassInput.addEventListener("input", checkPasswordMatch);
+                </script>
+                <script>
+                    document.getElementById("resetpasswordform").addEventListener("submit", function(e) {
+                        e.preventDefault(); 
+
+                        const form = this;
+                        const msgBox = document.getElementById("password_match_msg");
+                        const newPass = document.getElementById("new_password").value;
+                        const confirmPass = document.getElementById("confirm_password").value;
+
+                        if (newPass !== confirmPass) {
+                            msgBox.style.color = "red";
+                            msgBox.textContent = "Passwords do not match";
+                            return;
+                        }
+
+                        fetch(form.action, {
+                            method: "POST",
+                            body: new FormData(form)
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            msgBox.style.display = "block";
+
+                            if (data.status === "success") {
+                                msgBox.style.color = "green";
+                                msgBox.textContent = data.message;
+
+                                form.reset();
+
+                                setTimeout(() => {
+                                    $('#resetpass').modal('hide');
+                                }, 1500);
+
+                            } else {
+                                msgBox.style.color = "red";
+                                msgBox.textContent = data.message;
+                            }
+                        })
+                        .catch(err => {
+                            msgBox.style.color = "red";
+                            msgBox.textContent = "Something went wrong!";
+                            console.error(err);
+                        });
+                    });
+                </script>
 
 {% endblock %}
