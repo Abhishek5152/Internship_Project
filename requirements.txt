@@ -12,3 +12,4 @@ PyMySQL==1.1.2
 Werkzeug==3.1.5
 cloudinary==1.32.0
 python-dotenv==1.0.0
+weasyprint==57.0
