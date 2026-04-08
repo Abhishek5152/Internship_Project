@@ -111,6 +111,41 @@ pip install -r requirements.txt
 
 ---
 
+## 🪟 Additional Setup for Windows (WeasyPrint)
+
+If you are running this project on Windows, you need to install additional system dependencies required by **WeasyPrint**.
+
+### 📥 Install GTK Runtime
+
+1. Download the GTK runtime installer:
+   https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
+
+2. Run the installer and follow the setup instructions.
+
+3. Restart your terminal after installation.
+
+---
+
+### 📦 Install WeasyPrint
+
+After installing GTK, install the Python package:
+
+```
+pip install weasyprint
+```
+
+---
+
+### ⚠️ Notes
+
+* Without GTK, you may encounter errors like:
+
+  * `cannot load library`
+  * `DLL not found`
+* These are due to missing system dependencies required by WeasyPrint.
+
+---
+
 ## 🗄️ Database Setup
 
 1. Create database:
