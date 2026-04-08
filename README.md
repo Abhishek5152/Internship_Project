@@ -171,7 +171,7 @@ http://127.0.0.1:5000
 After running the seed file:
 
 * **Email:** [admin@gmail.com](mailto:admin@gmail.com)
-* **Password:** Admin@1234
+* **Password:** Admin@12345
 
 ---
 
