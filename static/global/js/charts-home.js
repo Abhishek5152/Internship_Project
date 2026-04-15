@@ -14,7 +14,7 @@ $(document).ready(function () {
     }
 
     var LINECHART = $('#lineCahrt');
-    var myLineChart = new Chart(LINECHART, {
+    window.myLineChart = new Chart(LINECHART, {
         type: 'line',
         options: {
             scales: {
@@ -61,7 +61,7 @@ $(document).ready(function () {
                     pointHoverBorderColor: "#fff",
                     pointHoverBorderWidth: 2,
                     pointRadius: 1,
-                    pointHitRadius: 0,
+                    pointHitRadius: 10,
                     data: [20, 27, 20, 35, 30, 40, 33, 25, 39],
                     spanGaps: false
                 },
@@ -98,7 +98,7 @@ $(document).ready(function () {
     // Bar Chart
     // ------------------------------------------------------ //
     var BARCHARTEXMPLE    = $('#barChartExample1');
-    var barChartExample = new Chart(BARCHARTEXMPLE, {
+    window.barChartExample1 = new Chart(BARCHARTEXMPLE, {
         type: 'bar',
         options: {
             scales: {
@@ -192,7 +192,7 @@ $(document).ready(function () {
     // Line Chart 1
     // ------------------------------------------------------ //
     var LINECHART1 = $('#lineChart1');
-    var myLineChart = new Chart(LINECHART1, {
+    window.myLineChart = new Chart(LINECHART1, {
         type: 'line',
         options: {
             scales: {
@@ -240,7 +240,7 @@ $(document).ready(function () {
                     pointHoverBorderColor: "#fff",
                     pointHoverBorderWidth: 0,
                     pointRadius: 1,
-                    pointHitRadius: 0,
+                    pointHitRadius: 10,
                     data: [20, 21, 25, 22, 24, 18, 20, 23, 19, 22, 25, 19, 24, 27, 22, 17, 20, 17, 20, 26, 22],
                     spanGaps: false
                 },
@@ -263,7 +263,7 @@ $(document).ready(function () {
                     pointHoverBorderColor: "#fff",
                     pointHoverBorderWidth: 0,
                     pointRadius: 1,
-                    pointHitRadius: 0,
+                    pointHitRadius: 10,
                     data: [24, 20, 23, 19, 22, 20, 25, 21, 23, 19, 21, 23, 19, 24, 19, 22, 21, 24, 19, 21, 20],
                     spanGaps: false
                 }
@@ -276,7 +276,7 @@ $(document).ready(function () {
     // Bar Chart
     // ------------------------------------------------------ //
     var BARCHARTEXMPLE    = $('#barChartExample2');
-    var barChartExample = new Chart(BARCHARTEXMPLE, {
+    window.barChartExample2 = new Chart(BARCHARTEXMPLE, {
         type: 'bar',
         options: {
             scales: {
@@ -370,7 +370,7 @@ $(document).ready(function () {
     // Pie Chart 1
     // ------------------------------------------------------ //
     var PIECHART = $('#pieChartHome1');
-    var myPieChart = new Chart(PIECHART, {
+    window.pieChart1 = new Chart(PIECHART, {
         type: 'doughnut',
         options: {
             cutoutPercentage: 90,
@@ -380,26 +380,20 @@ $(document).ready(function () {
         },
         data: {
             labels: [
-                "First",
-                "Second",
-                "Third",
-                "Fourth"
+                "Allocated", 
+                "Available"
             ],
             datasets: [
                 {
-                    data: [300, 50, 100, 60],
-                    borderWidth: [0, 0, 0, 0],
+                    data: [0, 0],
+                    borderWidth: [0, 0],
                     backgroundColor: [
                         '#6933b9',
-                        "#8553d1",
-                        "#a372ec",
-                        "#be9df1"
+                        "#a372ec"
                     ],
                     hoverBackgroundColor: [
                         '#6933b9',
-                        "#8553d1",
-                        "#a372ec",
-                        "#be9df1"
+                        "#a372ec"
                     ]
                 }]
         }
@@ -409,7 +403,7 @@ $(document).ready(function () {
     // Pie Chart 2
     // ------------------------------------------------------ //
     var PIECHART = $('#pieChartHome2');
-    var myPieChart = new Chart(PIECHART, {
+    window.pieChart2 = new Chart(PIECHART, {
         type: 'doughnut',
         options: {
             cutoutPercentage: 90,
@@ -419,26 +413,20 @@ $(document).ready(function () {
         },
         data: {
             labels: [
-                "First",
-                "Second",
-                "Third",
-                "Fourth"
+                'Used', 
+                'Remaining'
             ],
             datasets: [
                 {
-                    data: [80, 70, 100, 60],
-                    borderWidth: [0, 0, 0, 0],
+                    data: [0, 0],
+                    borderWidth: [0, 0],
                     backgroundColor: [
                         '#9528b9',
-                        "#b046d4",
-                        "#c767e7",
-                        "#e394fe"
+                        "#c767e7"
                     ],
                     hoverBackgroundColor: [
                         '#9528b9',
-                        "#b046d4",
-                        "#c767e7",
-                        "#e394fe"
+                        "#c767e7"
                     ]
                 }]
         }
@@ -448,7 +436,7 @@ $(document).ready(function () {
     // Pie Chart 3
     // ------------------------------------------------------ //
     var PIECHART = $('#pieChartHome3');
-    var myPieChart = new Chart(PIECHART, {
+    window.pieChart3 = new Chart(PIECHART, {
         type: 'doughnut',
         options: {
             cutoutPercentage: 90,
@@ -458,26 +446,23 @@ $(document).ready(function () {
         },
         data: {
             labels: [
-                "First",
-                "Second",
-                "Third",
-                "Fourth"
+                'Category 1', 
+                'Category 2', 
+                'Category 3'
             ],
             datasets: [
                 {
-                    data: [120, 90, 77, 95],
-                    borderWidth: [0, 0, 0, 0],
+                    data: [0, 0, 0],
+                    borderWidth: [0, 0, 0],
                     backgroundColor: [
                         '#da4d60',
                         "#e96577",
-                        "#f28695",
-                        "#ffb6c1"
+                        "#f28695"
                     ],
                     hoverBackgroundColor: [
                         '#da4d60',
                         "#e96577",
-                        "#f28695",
-                        "#ffb6c1"
+                        "#f28695"
                     ]
                 }]
         }
@@ -488,7 +473,7 @@ $(document).ready(function () {
     // Sales Bar Chart 1
     // ------------------------------------------------------ //
     var BARCHART1 = $('#salesBarChart1');
-    var barChartHome = new Chart(BARCHART1, {
+    window.barChart1 = new Chart(BARCHART1, {
         type: 'bar',
         options:
         {
@@ -548,7 +533,7 @@ $(document).ready(function () {
     // Sales Bar Chart 21
     // ------------------------------------------------------ //
     var BARCHART1 = $('#salesBarChart2');
-    var barChartHome = new Chart(BARCHART1, {
+    window.barChartHome = new Chart(BARCHART1, {
         type: 'bar',
         options:
         {
@@ -609,7 +594,7 @@ $(document).ready(function () {
     // Pie Chart
     // ------------------------------------------------------ //
     var PIECHARTEXMPLE    = $('#visitPieChart');
-    var pieChartExample = new Chart(PIECHARTEXMPLE, {
+    window.pieChartExample = new Chart(PIECHARTEXMPLE, {
         type: 'pie',
         options: {
             legend: {
@@ -643,7 +628,7 @@ $(document).ready(function () {
             }
     });
 
-    var pieChartExample = {
+    window.pieChartExample = {
         responsive: true
     };
 
