@@ -14,3 +14,4 @@ cloudinary==1.32.0
 python-dotenv==1.0.0
 weasyprint==57.0
 gunicorn==20.1.0
+psycopg2-binary==2.9.6
