@@ -5,7 +5,10 @@ from services.notif_service import manager_broadcast
 
 import cloudinary.uploader
 import pymysql
-from weasyprint import HTML
+try:
+    from weasyprint import HTML
+except:
+    HTML = None
 from datetime import datetime
 
 
