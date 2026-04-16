@@ -1,3 +1,5 @@
+from unittest import result
+
 from flask import render_template, request, redirect, url_for, session, Response
 from database import get_db_connection, get_cursor
 from utils import login_required, add_log
@@ -46,7 +48,8 @@ def dashboard():
         budget = cursor.fetchone()[0] or 0
 
         cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget")
-        avail_budget = cursor.fetchone()[0] or 0
+        result = cursor.fetchone()
+        avail_budget = result[0] if result and result[0] is not None else 0
 
         emp_percent = (employees / users * 100) if users else 0
         mgr_percent = (managers / users * 100) if users else 0
