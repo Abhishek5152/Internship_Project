@@ -66,6 +66,7 @@ def dashboard():
         
     except Exception as e:
         print("Error loading dashboard:", e)
+        return "Error loading dashboard"
     finally:
         cursor.close()
 
