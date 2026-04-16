@@ -1,7 +1,6 @@
 import cloudinary
 from dotenv import load_dotenv
 import os
-from psycopg2.extras import RealDictCursor
 
 load_dotenv()
 
@@ -94,7 +93,7 @@ def inject_notifications():
     cursor.execute("""
         SELECT COUNT(*) AS count 
         FROM eerm_notifs 
-        WHERE user_id = %s AND read_at IS NULL AND is_deleted = 0
+        WHERE user_id = %s AND read_at IS NULL AND NOT is_deleted
     """, (user_id,))
     unread_count = cursor.fetchone()['count']
 
@@ -103,7 +102,7 @@ def inject_notifications():
         u.user_name AS actor_name, u.user_img_url
         FROM eerm_notifs n
         LEFT JOIN eerm_users u ON n.actor_id = u.user_id
-        WHERE n.user_id = %s AND n.is_deleted = 0
+        WHERE n.user_id = %s AND NOT n.is_deleted
         ORDER BY n.created_at DESC
         LIMIT 5
     """, (user_id,))
