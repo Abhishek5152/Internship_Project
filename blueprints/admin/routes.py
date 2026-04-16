@@ -28,25 +28,25 @@ def dashboard():
     try:
 
         cursor.execute("SELECT COUNT(*) FROM eerm_users where user_role != 'Admin'")
-        users = cursor.fetchone()[0]
+        users = cursor.fetchone()[0] or 0
 
         cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Employee'")
-        employees = cursor.fetchone()[0]
+        employees = cursor.fetchone()[0] or 0
 
         cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Manager'")
-        managers = cursor.fetchone()[0]
+        managers = cursor.fetchone()[0] or 0
 
         cursor.execute("SELECT COUNT(*) FROM eerm_res")
-        all_resources = cursor.fetchone()[0]
+        all_resources = cursor.fetchone()[0] or 0
 
         cursor.execute("SELECT COUNT(*) FROM eerm_alloc")
-        active_resources = cursor.fetchone()[0]
+        active_resources = cursor.fetchone()[0] or 0
 
         cursor.execute("SELECT SUM(amt_lmt) FROM eerm_budget")
-        budget = cursor.fetchone()[0]
+        budget = cursor.fetchone()[0] or 0
 
         cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget")
-        avail_budget = cursor.fetchone()[0]
+        avail_budget = cursor.fetchone()[0] or 0
 
         emp_percent = (employees / users * 100) if users else 0
         mgr_percent = (managers / users * 100) if users else 0

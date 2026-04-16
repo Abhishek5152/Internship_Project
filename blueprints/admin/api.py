@@ -9,10 +9,10 @@ def dashboard_data():
     cursor = conn.cursor()
 
     cursor.execute("SELECT COUNT(*) FROM eerm_res")
-    total_res = cursor.fetchone()[0]
+    total_res = cursor.fetchone()[0] or 0
 
     cursor.execute("SELECT COUNT(*) FROM eerm_alloc")
-    allocated = cursor.fetchone()[0]
+    allocated = cursor.fetchone()[0] or 0
 
     cursor.execute("SELECT SUM(amt_lmt) FROM eerm_budget")
     total_budget = cursor.fetchone()[0] or 0
@@ -21,32 +21,32 @@ def dashboard_data():
     avail_budget = cursor.fetchone()[0] or 0
 
     cursor.execute("SELECT rc.cat_name, COUNT(r.res_id) FROM eerm_res r JOIN eerm_rescat rc ON r.cat_id = rc.cat_id GROUP BY rc.cat_name;")
-    categories = cursor.fetchall()
+    categories = cursor.fetchall() or []
 
     cursor.execute("""SELECT d.dept_name,
-       COUNT(r.req_id) AS total_requests,
-       COALESCE(SUM(CASE WHEN r.req_status = 'Approved' THEN 1 ELSE 0 END), 0) AS approved_requests
-FROM eerm_dept d
-LEFT JOIN eerm_users u ON d.dept_id = u.dept_id
-LEFT JOIN eerm_req r ON u.user_id = r.user_id
-GROUP BY d.dept_name;""")
-    res_requests = cursor.fetchall()
+        COUNT(r.req_id) AS total_requests,
+        COALESCE(SUM(CASE WHEN r.req_status = 'Approved' THEN 1 ELSE 0 END), 0) AS approved_requests
+        FROM eerm_dept d
+        LEFT JOIN eerm_users u ON d.dept_id = u.dept_id
+        LEFT JOIN eerm_req r ON u.user_id = r.user_id
+        GROUP BY d.dept_name;""")
+    res_requests = cursor.fetchall() or []
 
     cursor.execute("""SELECT 
-    d.dept_name,
-    COALESCE(SUM(e.exp_amt), 0) AS total_expense,
-    COALESCE(SUM(CASE 
+        d.dept_name,
+        COALESCE(SUM(e.exp_amt), 0) AS total_expense,
+        COALESCE(SUM(CASE 
         WHEN e.exp_status = 'Approved' THEN e.exp_amt 
         ELSE 0 
-    END), 0) AS approved_expense
-FROM eerm_dept d
-LEFT JOIN eerm_users u 
-    ON d.dept_id = u.dept_id
-LEFT JOIN eerm_exp e 
-    ON u.user_id = e.user_id
-GROUP BY d.dept_name
-ORDER BY d.dept_name;""")
-    exp_requests = cursor.fetchall()
+        END), 0) AS approved_expense
+        FROM eerm_dept d
+        LEFT JOIN eerm_users u 
+        ON d.dept_id = u.dept_id
+        LEFT JOIN eerm_exp e 
+        ON u.user_id = e.user_id
+        GROUP BY d.dept_name
+        ORDER BY d.dept_name;""")
+    exp_requests = cursor.fetchall() or []
 
     return jsonify({
         "resources": {
