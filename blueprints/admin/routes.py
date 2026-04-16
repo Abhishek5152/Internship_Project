@@ -1,5 +1,4 @@
 from flask import render_template, request, redirect, url_for, session, Response
-from weasyprint import html
 from database import get_db_connection, get_cursor
 from utils import login_required, add_log
 from services.notif_service import manager_broadcast
