@@ -2,6 +2,9 @@ from flask import session, redirect, url_for
 from functools import wraps
 import re
 
+def get_value(cursor):
+    result = cursor.fetchone()
+    return result[0] if result and result[0] is not None else 0
 
 def login_required(f):
     @wraps(f)

@@ -2,7 +2,7 @@ from unittest import result
 
 from flask import render_template, request, redirect, url_for, session, Response
 from database import get_db_connection, get_cursor
-from utils import login_required, add_log
+from utils import login_required, add_log, get_value
 from services.notif_service import manager_broadcast
 
 import cloudinary.uploader
@@ -30,26 +30,25 @@ def dashboard():
     try:
 
         cursor.execute("SELECT COUNT(*) FROM eerm_users where user_role != 'Admin'")
-        users = cursor.fetchone()[0] or 0
+        users = get_value(cursor)
 
         cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Employee'")
-        employees = cursor.fetchone()[0] or 0
+        employees = get_value(cursor)
 
         cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Manager'")
-        managers = cursor.fetchone()[0] or 0
+        managers = get_value(cursor)
 
         cursor.execute("SELECT COUNT(*) FROM eerm_res")
-        all_resources = cursor.fetchone()[0] or 0
+        all_resources = get_value(cursor)
 
         cursor.execute("SELECT COUNT(*) FROM eerm_alloc")
-        active_resources = cursor.fetchone()[0] or 0
+        active_resources = get_value(cursor)
 
         cursor.execute("SELECT SUM(amt_lmt) FROM eerm_budget")
-        budget = cursor.fetchone()[0] or 0
+        budget = get_value(cursor)
 
         cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget")
-        result = cursor.fetchone()
-        avail_budget = result[0] if result and result[0] is not None else 0
+        avail_budget = get_value(cursor)
 
         emp_percent = (employees / users * 100) if users else 0
         mgr_percent = (managers / users * 100) if users else 0
