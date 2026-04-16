@@ -1,7 +1,7 @@
 import cloudinary
 from dotenv import load_dotenv
 import os
-import pymysql
+from psycopg2.extras import RealDictCursor
 
 load_dotenv()
 
@@ -87,10 +87,10 @@ def inject_notifications():
     if 'user_id' not in session:
         return dict(unread_count=0, notifications=[])
 
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     user_id = session['user_id']
-
+    
     cursor.execute("""
         SELECT COUNT(*) AS count 
         FROM eerm_notifs 
