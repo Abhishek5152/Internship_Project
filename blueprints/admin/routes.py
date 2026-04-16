@@ -4,6 +4,7 @@ from flask import render_template, request, redirect, url_for, session, Response
 from database import get_db_connection, get_cursor
 from utils import login_required, add_log, get_value
 from services.notif_service import manager_broadcast
+import traceback
 
 import cloudinary.uploader
 import pymysql
@@ -67,8 +68,9 @@ def dashboard():
                                )
         
     except Exception as e:
-        print("Error loading dashboard:", e)
-        return "Error loading dashboard"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
