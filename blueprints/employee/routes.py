@@ -237,7 +237,7 @@ def viewexpense():
             SELECT e.exp_id, c.cat_name, e.exp_amt, e.exp_desc, e.exp_date, e.exp_status ,e.receipt_url
             FROM eerm_exp e
             JOIN eerm_expcat c ON e.cat_id = c.cat_id
-            WHERE e.user_id = %s and e.exp_status != "Pending" and e.exp_status != "Cancelled"
+            WHERE e.user_id = %s and e.exp_status != 'Pending' and e.exp_status != 'Cancelled'
             ORDER BY e.created_at DESC
         """, (user_id,))
         expenses = cursor.fetchall()
@@ -260,7 +260,7 @@ def exprequests():
             SELECT e.exp_id, c.cat_name, e.exp_amt, e.exp_desc, e.exp_date, e.exp_status ,e.receipt_url
             FROM eerm_exp e
             JOIN eerm_expcat c ON e.cat_id = c.cat_id
-            WHERE e.user_id = %s AND e.exp_status != "Approved" AND e.exp_status != "Rejected"
+            WHERE e.user_id = %s AND e.exp_status != 'Approved' AND e.exp_status != 'Rejected'
             ORDER BY e.created_at DESC
         """, (user_id,))
         expenses = cursor.fetchall()
