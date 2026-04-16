@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, session
 from database import get_db_connection
 from utils import login_required, add_log
 from services.notif_service import create_notif
-
+import traceback
 import cloudinary.uploader
 import pymysql
 
@@ -29,8 +29,9 @@ def manusers_m():
         users = cursor.fetchall()
         return render_template('manager/man_manusers.html', users=users)
     except Exception as e:
-        print("Error fetching users:", e)
-        return "Error fetching users"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
         
@@ -69,8 +70,9 @@ def toggle_user_status(user_id):
         return redirect(url_for('manager.manusers_m', msg=msg))
 
     except Exception as e:
-        print("Error toggling user status:", e)
-        return "Error toggling user status"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
 
     finally:
         cursor.close()
@@ -92,8 +94,9 @@ def viewexpense():
         expenses = cursor.fetchall()
         return render_template('manager/man_viewexp.html', expenses=expenses)
     except Exception as e:
-        print("Error fetching expenses:", e)
-        return "Error fetching expenses"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -120,8 +123,9 @@ def exprequests():
         avail_budget = result[0] if result and result[0] else 0
         return render_template('manager/man_expreq.html', expenses=expenses, total_budget=int(total_budget), avail_budget=int(avail_budget))
     except Exception as e:
-        print("Error fetching expenses:", e)
-        return "Error fetching expenses"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -172,8 +176,9 @@ def expapprove(exp_id, user_id):
         msg = "Expense approved successfully"
         return redirect(url_for('manager.exprequests', msg=msg))
     except Exception as e:
-        print("Error approving expense:", e)
-        return "Error approving expense"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -207,8 +212,9 @@ def expdeny(exp_id, user_id):
         msg = "Expense rejected successfully"
         return redirect(url_for('manager.exprequests', msg=msg))
     except Exception as e:
-        print("Error rejecting expense:", e)
-        return "Error rejecting expense"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -235,8 +241,9 @@ def viewreq():
         requests = cursor.fetchall()
         return render_template('manager/man_viewreq.html', requests=requests)
     except Exception as e:
-        print("Error fetching requests:", e)
-        return "Error fetching requests"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
         
@@ -288,8 +295,9 @@ def reqapprove(req_id,user_id):
         msg = "Request approved successfully"
         return redirect(url_for('manager.viewreq', msg=msg))
     except Exception as e:
-        print("Error approving request:", e)
-        return "Error approving request"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
         
@@ -324,8 +332,9 @@ def reqreject(req_id, user_id):
         msg = "Request rejected successfully"
         return redirect(url_for('manager.viewreq', msg=msg))
     except Exception as e:
-        print("Error rejecting request:", e)
-        return "Error rejecting request"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
         
@@ -353,8 +362,9 @@ def reqhistory():
         requests = cursor.fetchall()
         return render_template('manager/man_reqhistory.html', requests=requests)
     except Exception as e:
-        print("Error fetching request history:", e)
-        return "Error fetching request history"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -400,7 +410,10 @@ def upload_profile_photo():
         conn.commit()
 
         return redirect(url_for('manager.man_mngprof'))
-
+    except Exception as e:
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close() 
         
@@ -460,8 +473,9 @@ def edit_profile():
             user_data = cursor.fetchone()
             return render_template('manager/man_edit_profile.html', user_data=user_data)
     except Exception as e:
-        print("Error updating profile:", e)
-        return "Error updating profile"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
         
