@@ -100,15 +100,18 @@ def register_user():
         cursor.execute("""
             INSERT INTO eerm_users (user_name, user_email, user_pass, user_role, user_status, dept_id)
             VALUES (%s, %s, %s, 'Employee', 'Active', %s)
+            RETURNING user_id
         """, (reg_name, reg_email, register_pass, reg_dept))
+
+        user_id = cursor.fetchone()[0]
         conn.commit()
 
         add_log(
             conn,
-            cursor.lastrowid,
+            user_id,
             "REGISTER",
             "USER",
-            cursor.lastrowid,
+            user_id,
             f"New user registered with email {reg_email} in department ID {reg_dept}"
         )
 
