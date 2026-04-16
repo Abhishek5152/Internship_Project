@@ -1,3 +1,5 @@
+import traceback
+
 from flask import render_template, request, redirect, url_for, session
 from database import get_db_connection
 from utils import login_required, add_log
@@ -45,7 +47,7 @@ def resreturn(res_id):
     conn = get_db_connection()
     user_id = session.get('user_id')
     cursor = conn.cursor()
-    cursor.execute("UPDATE eerm_alloc SET alloc_status = 'Returned' WHERE alloc_id = %s AND user_id = %s", (res_id, user_id))
+    cursor.execute("UPDATE eerm_alloc SET alloc_status = 'Returned' WHERE alloc_id = %s AND user_id = %s", (res_id, user_id,))
     add_log(
         conn,
         session.get("user_id"),
@@ -164,7 +166,10 @@ def upload_profile_photo():
         conn.commit()
 
         return redirect(url_for('employee.emp_mngprof'))
-
+    except Exception as e:
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -178,7 +183,9 @@ def addexpense():
         exp_types = cursor.fetchall()
         return render_template('employee/emp_addexp.html', exp_types=exp_types)
     except Exception as e:
-        print("Error fetching expense types:", e)
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:        
         cursor.close()
 
@@ -213,7 +220,9 @@ def submitexpense():
         msg = "Expense submitted successfully"
         return redirect(url_for('employee.viewrequests', msg=msg))
     except Exception as e:
-        print("Error submitting expense:", e)
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -234,8 +243,9 @@ def viewexpense():
         expenses = cursor.fetchall()
         return render_template('employee/emp_viewexp.html', expenses=expenses)
     except Exception as e:
-        print("Error fetching expenses:", e)
-        return "Error fetching expenses"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -257,8 +267,9 @@ def exprequests():
         print ("Fetched expense requests:", expenses)
         return render_template('employee/emp_viewexpreq.html', expenses=expenses)
     except Exception as e:
-        print("Error fetching expense requests:", e)
-        return "Error fetching expense requests"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -272,8 +283,9 @@ def cancelreq(exp_id):
         conn.commit()
         return redirect(url_for('employee.exprequests'))
     except Exception as e:
-        print("Error cancelling expense request:", e)
-        return "Error cancelling expense request"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -328,8 +340,9 @@ def edit_profile():
             user_data = cursor.fetchone()
             return render_template('employee/emp_edit_profile.html', user_data=user_data)
     except Exception as e:
-        print("Error updating profile:", e)
-        return "Error updating profile"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
         
