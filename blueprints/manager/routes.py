@@ -92,7 +92,7 @@ def viewexpense():
             WHERE u.dept_id = %s AND e.exp_status != 'Pending'
         """, (session.get("dept_id"),))
         expenses = cursor.fetchall()
-        return render_template('manager/man_viewexp.html', expenses=expenses)
+        return render_template('manager/man_viewExp.html', expenses=expenses)
     except Exception as e:
         print("FULL ERROR:")
         traceback.print_exc()
