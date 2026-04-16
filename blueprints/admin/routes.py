@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, session, Response
-from database import get_db_connection
+from weasyprint import html
+from database import get_db_connection, get_cursor
 from utils import login_required, add_log
 from services.notif_service import manager_broadcast
 
@@ -104,14 +105,17 @@ def add_resource():
         cursor.execute("""
             INSERT INTO eerm_res (cat_id, res_name, res_type, res_desc)
             VALUES (%s, %s, %s, %s)
+            RETURNING res_id
         """, (cat_id, res_name, res_type, res_desc))
+
+        res_id = cursor.fetchone()[0]
 
         add_log(
             conn,
             session.get("user_id"),
             "ADD",
             "RESOURCE",
-            cursor.lastrowid,
+            res_id,
             f"Added new resource: {res_name} of type {res_type}"
         )
 
@@ -142,8 +146,7 @@ def viewres():
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT * FROM eerm_res")
-        resources = cursor.fetchall()
-        cursor.close()
+        resources = cursor.fetchall() or []
         return render_template('admin/admin_viewres.html', resources=resources)
     except Exception as e:
         print("Error fetching resources:", e)
@@ -171,7 +174,7 @@ def toggle_resource_status(res_id):
             cursor.execute("UPDATE eerm_res SET res_status = 'Under Maintainance' WHERE res_id = %s", (res_id,))
         else:
             cursor.execute("UPDATE eerm_res SET res_status = 'Available' WHERE res_id = %s", (res_id,))
-        cursor.execute("UPDATE eerm_res SET res_lifestatus = %s WHERE res_id = %s", (new_status, res_id))
+        cursor.execute("UPDATE eerm_res SET res_lifestatus = %s WHERE res_id = %s", (new_status, res_id,))
         conn.commit()
 
         add_log(
@@ -238,14 +241,17 @@ def add_budget():
         cursor.execute("""
             INSERT INTO eerm_budget (dept_id, cat_id, amt_lmt, avail_bgt, bgt_year)
             VALUES (%s, %s, %s, %s, %s)
+            RETURNING bgt_id
         """, (bgt_dept, bgt_cat, bgt_amtlmt, bgt_amtlmt, bgt_year))
+
+        bgt_id = cursor.fetchone()[0]
 
         add_log(
             conn,
             session.get("user_id"),
             "CREATE",
             "BUDGET",
-            cursor.lastrowid,
+            bgt_id,
             f"Created budget for {bgt_dept} with category {bgt_cat} and amount limit {bgt_amtlmt}"
         )
 
@@ -303,11 +309,11 @@ def viewbgtdata(dept_id):
             FROM eerm_budget b
             JOIN eerm_expcat c ON b.cat_id = c.cat_id
             where b.dept_id =%s
-        """, (dept_id))
+        """, (dept_id,))
         budgets = cursor.fetchall()
         cursor.execute("SELECT cat_id, cat_name FROM eerm_expcat")
         categories = cursor.fetchall()
-        cursor.execute("SELECT dept_name FROM eerm_dept where dept_id=%s", dept_id)
+        cursor.execute("SELECT dept_name FROM eerm_dept where dept_id=%s", (dept_id,))
         dept = cursor.fetchone()
         return render_template('admin/admin_viewbgtdata.html', budgets=budgets, categories=categories, dept=dept)
     except Exception as e:
@@ -416,14 +422,17 @@ def add_policy():
         cursor.execute("""
             INSERT INTO eerm_poli (policat_id, cat_id, rule_value, poli_desc)
             VALUES (%s, %s, %s, %s)
+            RETURNING poli_id
         """, (poli_type, exp_cat, poli_rule, poli_desc))
+
+        poli_id = cursor.fetchone()[0]
 
         add_log(
             conn,
             session.get("user_id"),
             "ADD",
             "POLICY",
-            cursor.lastrowid,
+            poli_id,
             f"Added new policy: {poli_type} with rule {poli_rule} for category {exp_cat}"
         )
 
@@ -564,9 +573,9 @@ def manusers():
         FROM eerm_users u 
         JOIN eerm_dept d ON u.dept_id = d.dept_id
         where u.user_role != 'Admin'""")
-        users = cursor.fetchall()
+        users = cursor.fetchall() or []
         cursor.execute("SELECT dept_id, dept_name from eerm_dept")
-        department = cursor.fetchall()
+        department = cursor.fetchall() or []
         return render_template('admin/admin_manusers.html', users=users, department = department)
     except Exception as e:
         print("Error fetching users:", e)
@@ -630,7 +639,7 @@ def toggle_user_status(user_id):
         current_status = result[0]
         new_status = 'Inactive' if current_status == 'Active' else 'Active'
 
-        cursor.execute("UPDATE eerm_users SET user_status = %s WHERE user_id = %s", (new_status, user_id))
+        cursor.execute("UPDATE eerm_users SET user_status = %s WHERE user_id = %s", (new_status, user_id,))
         conn.commit()
 
         add_log(
@@ -705,7 +714,7 @@ def upload_profile_photo():
             UPDATE eerm_users
             SET user_img_url=%s
             WHERE user_id=%s
-        """, (image_url, session.get('user_id')))
+        """, (image_url, session.get('user_id'),))
 
         add_log(
             conn,
@@ -730,7 +739,7 @@ def mngprof():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT user_id, user_name, user_email, user_contact, user_address, user_about, user_img_url FROM eerm_users WHERE user_id = %s", (user_id,))
-    user_data = cursor.fetchone()
+    user_data = cursor.fetchone() or {}
     cursor.close()
     
     return render_template('admin/admin_mngprof.html', user_data=user_data)
@@ -774,7 +783,7 @@ def edit_profile():
             return redirect(url_for('admin.mngprof', msg=msg))
         else:
             cursor.execute("SELECT user_id, user_name, user_email, user_contact, user_address, user_about FROM eerm_users WHERE user_id = %s", (user_id,))
-            user_data = cursor.fetchone()
+            user_data = cursor.fetchone() or {}
             return render_template('admin/admin_edit_profile.html', user_data=user_data)
     finally:
         cursor.close()
@@ -783,7 +792,7 @@ def edit_profile():
 def all_notifications():
     user_id = session['user_id']
     conn = get_db_connection()
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor = get_cursor(conn)
 
     cursor.execute("""
         SELECT n.notif_id, n.message, n.created_at, n.read_at,
@@ -800,9 +809,9 @@ def all_notifications():
 
 def get_logs():
     conn = get_db_connection()
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT l.log_id, u.user_name, l.action, l.entity, l.log_desc, l.created_at FROM eerm_logs l JOIN eerm_users u ON l.user_id = u.user_id ORDER BY created_at DESC LIMIT 100")
-    return cursor.fetchall()
+    cursor = get_cursor(conn)
+    cursor.execute("SELECT l.log_id, u.user_name, l.action, l.entity, l.log_desc, l.created_at FROM eerm_logs l JOIN eerm_users u ON l.user_id = u.user_id ORDER BY created_at DESC LIMIT 30")
+    return cursor.fetchall() or []
 
 @admin_bp.route('/export-logs-pdf')
 def export_logs_pdf():
@@ -810,6 +819,8 @@ def export_logs_pdf():
 
     html = render_template("logs_pdf.html", logs=logs, now=datetime.now())
     print("something does work")
+    if not HTML:
+        return "PDF feature not available"
     pdf = HTML(string=html).write_pdf()
 
     return Response(

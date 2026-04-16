@@ -15,7 +15,7 @@ cloudinary.config(
 
 from flask import Flask, session, url_for, redirect
 from flask_session import Session
-from database import close_db_connection
+from database import close_db_connection, get_cursor
 
 from blueprints.admin import admin_bp
 from blueprints.admin.api import admin_api
@@ -87,7 +87,7 @@ def inject_notifications():
     if 'user_id' not in session:
         return dict(unread_count=0, notifications=[])
 
-    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor = get_cursor(conn)
 
     user_id = session['user_id']
     

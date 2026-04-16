@@ -1,9 +1,16 @@
 import os
-import pymysql
 import psycopg2
 from urllib.parse import urlparse
 from flask import g
+from psycopg2.extras import RealDictCursor
+import pymysql
 
+def get_cursor(conn):
+    if "psycopg2" in str(type(conn)):
+        return conn.cursor(cursor_factory=RealDictCursor)
+    else:
+        return conn.cursor(pymysql.cursors.DictCursor)
+    
 def get_db_connection():
     if 'db_connection' not in g:
 
