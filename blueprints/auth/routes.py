@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from utils import validate_password
 from datetime import datetime, timedelta
 import secrets
+import traceback
 
 from . import auth_bp
 
@@ -46,9 +47,9 @@ def admin_login():
             msg = "Invalid email or password"
             return redirect(url_for('auth.addlogin', msg=msg))
     except Exception as e:
-        print("Error during login:", e)
-        cursor.close()
-        return "Error during login"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:        
         cursor.close()
         
@@ -62,8 +63,9 @@ def user_register():
         departments = cursor.fetchall()
         return render_template('global_user/user_register.html', departments=departments)  
     except Exception as e:
-        print("Error fetching departments:", e)
-        return "Error fetching departments"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -113,8 +115,9 @@ def register_user():
         msg = "Registration successful! Please log in."
         return redirect(url_for('auth.user_login', msg=msg))
     except Exception as e:
-        print("Error during registration:", e)
-        return "Error during registration"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
         
@@ -170,8 +173,9 @@ def userlogin():
             msg = "Invalid email or password"
             return redirect(url_for('auth.user_login', msg=msg))
     except Exception as e:
-        print("Error during login:", e)
-        return "Error during login"
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
         
@@ -207,7 +211,10 @@ def forgot_password():
         # msg = "If this email exists, a reset link has been sent."
 
         return redirect(url_for('auth.reset_password', token=token, _external=True))
-
+    except Exception as e:
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -250,7 +257,10 @@ def reset_password(token):
             return render_template("global_user/user_login.html", msg=msg)
 
         return render_template("global_user/user_resetpass.html", token=token)
-
+    except Exception as e:
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
     finally:
         cursor.close()
 
@@ -309,7 +319,8 @@ def set_password():
             return jsonify({'status': 'success', 'message': 'Password updated successfully!'})
 
     except Exception as e:
-        print("Error setting admin password:", e)
+        print("FULL ERROR:")
+        traceback.print_exc()
         return jsonify({'status': 'error', 'message': 'An error occurred while updating the password.'})
 
     finally:
