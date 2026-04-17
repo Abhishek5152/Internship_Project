@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, session
 from database import get_db_connection
-from utils import login_required, add_log
+from utils import login_required, add_log, get_value
 from services.notif_service import create_notif
 import traceback
 import cloudinary.uploader

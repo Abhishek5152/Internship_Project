@@ -293,7 +293,7 @@
         function openNotifModal() {
             $('#notifModal').modal('show');
 
-            fetch("{{ url_for('manager.all_notifications') }}")
+            fetch("{{ url_for('admin.all_notifications') }}")
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('notifModalBody').innerHTML = data;
