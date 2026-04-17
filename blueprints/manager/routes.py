@@ -292,9 +292,9 @@ def reqapprove(req_id,user_id):
                 WHERE req_id = %s
             """, (req_id,))
         
-        cursor.execute("SELECT res_id from eerm_req where req_id = %s ", req_id)
+        cursor.execute("SELECT res_id from eerm_req where req_id = %s ", (req_id,))
         res_id = cursor.fetchone()[0]
-        cursor.execute("UPDATE eerm_res SET res_status = 'Allocated' where res_id = %s and res_type = 'Shared'",(res_id))
+        cursor.execute("UPDATE eerm_res SET res_status = 'Allocated' where res_id = %s and res_type = 'Shared'",(res_id,))
         conn.commit()
         add_log(
             conn,
