@@ -121,7 +121,8 @@ def exprequests():
         cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget WHERE dept_id = %s AND avail_bgt IS NOT NULL", (session.get("dept_id"),))
         result = cursor.fetchone()
         avail_budget = result[0] if result and result[0] else 0
-        return render_template('manager/man_expreq.html', expenses=expenses, total_budget=int(total_budget), avail_budget=int(avail_budget))
+        budget_percent = (avail_budget / total_budget * 100) if total_budget else 0
+        return render_template('manager/man_expreq.html', expenses=expenses, total_budget=int(total_budget), avail_budget=int(avail_budget), budget_percent=int(budget_percent),)
     except Exception as e:
         print("FULL ERROR:")
         traceback.print_exc()
