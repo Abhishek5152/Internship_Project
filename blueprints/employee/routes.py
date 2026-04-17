@@ -1,7 +1,7 @@
 import traceback
 
 from flask import render_template, request, redirect, url_for, session
-from database import get_db_connection
+from database import get_db_connection, get_cursor
 from utils import login_required, add_log
 from services.notif_service import create_notif
 
@@ -350,7 +350,7 @@ def edit_profile():
 def all_notifications():
     user_id = session['user_id']
     conn = get_db_connection()
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor = get_cursor(conn)
 
     cursor.execute("""
         SELECT n.notif_id, n.message, n.created_at, n.read_at,
