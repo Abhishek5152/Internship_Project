@@ -25,10 +25,7 @@
                             <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                <th>Req ID</th>
-                                <th>Requester ID</th>
                                 <th>Requester name</th>
-                                <th>Res ID</th>
                                 <th>Resource</th>
                                 <th>Request Date</th>
                                 <th>Status</th>
@@ -37,13 +34,10 @@
                             <tbody>
                                 {% for req in requests %}
                                 <tr>
-                                    <td>{{ req[0] }}</td>  <!-- ID -->
-                                    <td>{{ req[1] }}</td>  <!-- Requester ID -->
-                                    <td>{{ req[2] }}</td>  <!-- Requester -->
-                                    <td>{{ req[3] }}</td>  <!-- Resource ID -->
-                                    <td>{{ req[4] }}</td>  <!-- Resource -->
-                                    <td>{{ req[5] }}</td>  <!-- Request Date -->
-                                    <td>{{ req[6] }}</td>  <!-- Status -->
+                                    <td>{{ req[0] }}</td>  <!-- Requester name -->
+                                    <td>{{ req[1] }}</td>  <!-- Resource -->
+                                    <td>{{ req[2] }}</td>  <!-- Request Date -->
+                                    <td>{{ req[3] }}</td>  <!-- Status -->
                                 </tr>
                                 {% endfor %}
                             </tbody>

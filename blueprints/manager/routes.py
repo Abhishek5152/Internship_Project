@@ -369,10 +369,7 @@ def reqhistory():
     cursor = conn.cursor()
     try:
         cursor.execute("""
-            SELECT r.req_id,
-                   r.user_id,
-                   u.user_name,
-                   r.res_id,
+            SELECT u.user_name,
                    c.res_name,
                    r.req_date,
                    r.req_status
