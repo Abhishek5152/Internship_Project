@@ -254,12 +254,23 @@ def reqapprove(req_id,user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("""
+        if "psycopg2" in str(type(conn)):
+            cursor.execute("""
+                UPDATE eerm_req r
+                SET req_status = 'Approved'
+                FROM eerm_res c
+                WHERE r.res_id = c.res_id
+                AND r.req_id = %s
+                AND c.res_status = 'Available'
+            """, (req_id,))
+        else:
+            cursor.execute("""
             UPDATE eerm_req r
             JOIN eerm_res c ON r.res_id = c.res_id
             SET r.req_status = 'Approved'
             WHERE r.req_id = %s AND c.res_status = 'Available'
-            """, (req_id,))  
+            """, (req_id,))
+          
         cursor.execute("""
             INSERT INTO eerm_alloc (res_id, user_id, alloc_date, ret_date)
             SELECT res_id, 
@@ -270,7 +281,7 @@ def reqapprove(req_id,user_id):
             WHERE req_id = %s
         """, (req_id,))
         cursor.execute("SELECT res_id from eerm_req where req_id = %s ", req_id)
-        res_id = cursor.fetchone()
+        res_id = cursor.fetchone()[0]
         cursor.execute("UPDATE eerm_res SET res_status = 'Allocated' where res_id = %s and res_type = 'Shared'",(res_id))
         conn.commit()
         add_log(
