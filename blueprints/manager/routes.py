@@ -270,16 +270,28 @@ def reqapprove(req_id,user_id):
             SET r.req_status = 'Approved'
             WHERE r.req_id = %s AND c.res_status = 'Available'
             """, (req_id,))
-          
-        cursor.execute("""
-            INSERT INTO eerm_alloc (res_id, user_id, alloc_date, ret_date)
-            SELECT res_id, 
-            user_id, 
-            NOW(), 
-            DATE_ADD(NOW(), INTERVAL 30 DAY)
-            FROM eerm_req 
-            WHERE req_id = %s
-        """, (req_id,))
+        
+        if "psycopg2" in str(type(conn)):
+            cursor.execute("""
+                INSERT INTO eerm_alloc (res_id, user_id, alloc_date, ret_date)
+                SELECT res_id, 
+                user_id, 
+                NOW(), 
+                NOW() + INTERVAL '30 days'
+                FROM eerm_req 
+                WHERE req_id = %s
+            """, (req_id,))
+        else:
+            cursor.execute("""
+                INSERT INTO eerm_alloc (res_id, user_id, alloc_date, ret_date)
+                SELECT res_id, 
+                user_id, 
+                NOW(), 
+                DATE_ADD(NOW(), INTERVAL 30 DAY)
+                FROM eerm_req 
+                WHERE req_id = %s
+            """, (req_id,))
+        
         cursor.execute("SELECT res_id from eerm_req where req_id = %s ", req_id)
         res_id = cursor.fetchone()[0]
         cursor.execute("UPDATE eerm_res SET res_status = 'Allocated' where res_id = %s and res_type = 'Shared'",(res_id))
