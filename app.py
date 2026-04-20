@@ -19,9 +19,9 @@ from database import close_db_connection, get_cursor
 from blueprints.admin import admin_bp
 from blueprints.admin.api import admin_api
 from blueprints.manager import man_bp
-# from blueprints.manager.api import man_api
+from blueprints.manager.api import man_api
 from blueprints.employee import emp_bp
-# from blueprints.employee.api import emp_api
+from blueprints.employee.api import emp_api
 from blueprints.auth import auth_bp
 
 app = Flask(__name__)
@@ -35,9 +35,9 @@ Session(app)
 app.register_blueprint(admin_bp)
 app.register_blueprint(admin_api, url_prefix='/admin/api')
 app.register_blueprint(man_bp)
-# app.register_blueprint(man_api, url_prefix='/manager/api')
+app.register_blueprint(man_api, url_prefix='/manager/api')
 app.register_blueprint(emp_bp)
-# app.register_blueprint(emp_api, url_prefix='/employee/api')
+app.register_blueprint(emp_api, url_prefix='/employee/api')
 app.register_blueprint(auth_bp)
 
 app.teardown_appcontext(close_db_connection)

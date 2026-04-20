@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, session
 from database import get_db_connection, get_cursor
-from utils import login_required, add_log
+from utils import get_value, login_required, add_log
 from services.notif_service import create_notif
 import traceback
 import cloudinary.uploader
@@ -17,7 +17,53 @@ def allowed_file(filename):
 @man_bp.route('/mandash')
 @login_required
 def mandash():
-    return render_template('manager/man_dashboard.html')
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+
+        cursor.execute("SELECT COUNT(*) FROM eerm_users where user_role != 'Admin'")
+        users = get_value(cursor)
+
+        cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Employee'")
+        employees = get_value(cursor)
+
+        cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Manager'")
+        managers = get_value(cursor)
+
+        cursor.execute("SELECT COUNT(*) FROM eerm_res")
+        all_resources = get_value(cursor)
+
+        cursor.execute("SELECT COUNT(*) FROM eerm_alloc")
+        active_resources = get_value(cursor)
+
+        cursor.execute("SELECT SUM(amt_lmt) FROM eerm_budget")
+        budget = get_value(cursor)
+
+        cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget")
+        avail_budget = get_value(cursor)
+
+        emp_percent = (employees / users * 100) if users else 0
+        mgr_percent = (managers / users * 100) if users else 0
+        res_percent = (active_resources / all_resources * 100) if all_resources else 0
+        bgt_percent = (avail_budget / budget * 100) if budget else 0
+
+        return render_template('manager/man_dashboard.html', 
+                               employees=employees, 
+                               managers=managers, 
+                               active_resources=active_resources,
+                               avail_budget=int(avail_budget),
+                               bgt_percent=bgt_percent,
+                               emp_percent=emp_percent,
+                               mgr_percent=mgr_percent,
+                               res_percent=res_percent
+                               )
+        
+    except Exception as e:
+        print("FULL ERROR:")
+        traceback.print_exc()
+        return str(e)
+    finally:
+        cursor.close()
 
 @man_bp.route('/manusers-m')
 @login_required
