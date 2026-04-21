@@ -21,40 +21,49 @@ def mandash():
     cursor = conn.cursor()
     try:
 
-        cursor.execute("SELECT COUNT(*) FROM eerm_users where user_role != 'Admin'")
+        cursor.execute("SELECT COUNT(*) FROM eerm_users where user_role = 'Employee' AND dept_id = %s", (session.get("dept_id"),))
         users = get_value(cursor)
 
-        cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Employee'")
+        cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Employee' AND dept_id = %s AND user_status = 'Active'", (session.get("dept_id"),))
         employees = get_value(cursor)
 
-        cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Manager'")
-        managers = get_value(cursor)
+        cursor.execute("""SELECT 
+                (SELECT COUNT(*) FROM eerm_req r JOIN eerm_users u ON r.user_id = u.user_id WHERE u.dept_id = %s AND r.req_status = 'Pending') +
+                (SELECT COUNT(*) FROM eerm_exp e JOIN eerm_users u ON e.user_id = u.user_id WHERE u.dept_id = %s AND e.exp_status = 'Pending')
+                AS total_requests;""", (session.get("dept_id"),session.get("dept_id"),))
+        Requests = get_value(cursor)
+
+        cursor.execute("""SELECT 
+                (SELECT COUNT(*) FROM eerm_req r JOIN eerm_users u ON r.user_id = u.user_id WHERE u.dept_id = %s ) +
+                (SELECT COUNT(*) FROM eerm_exp e JOIN eerm_users u ON e.user_id = u.user_id WHERE u.dept_id = %s )
+                AS total_requests;""", (session.get("dept_id"),session.get("dept_id"),))
+        all_requests = get_value(cursor)
 
         cursor.execute("SELECT COUNT(*) FROM eerm_res")
         all_resources = get_value(cursor)
 
-        cursor.execute("SELECT COUNT(*) FROM eerm_alloc")
+        cursor.execute("SELECT COUNT(*) FROM eerm_alloc a JOIN eerm_users u ON a.user_id = u.user_id WHERE u.dept_id = %s", (session.get("dept_id"),))
         active_resources = get_value(cursor)
 
-        cursor.execute("SELECT SUM(amt_lmt) FROM eerm_budget")
+        cursor.execute("SELECT SUM(amt_lmt) FROM eerm_budget WHERE dept_id = %s", (session.get("dept_id"),))
         budget = get_value(cursor)
 
-        cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget")
+        cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget WHERE dept_id = %s", (session.get("dept_id"),))
         avail_budget = get_value(cursor)
 
         emp_percent = (employees / users * 100) if users else 0
-        mgr_percent = (managers / users * 100) if users else 0
+        req_percent = (Requests / all_requests * 100) if all_requests else 0
         res_percent = (active_resources / all_resources * 100) if all_resources else 0
         bgt_percent = (avail_budget / budget * 100) if budget else 0
 
         return render_template('manager/man_dashboard.html', 
                                employees=employees, 
-                               managers=managers, 
+                               requests=Requests,
                                active_resources=active_resources,
                                avail_budget=int(avail_budget),
                                bgt_percent=bgt_percent,
                                emp_percent=emp_percent,
-                               mgr_percent=mgr_percent,
+                               req_percent=req_percent,
                                res_percent=res_percent
                                )
         
@@ -200,6 +209,7 @@ def expapprove(exp_id, user_id):
                 new_avail_bgt = avail_bgt - exp_amount
                 cursor.execute("UPDATE eerm_budget SET avail_bgt = %s WHERE dept_id = %s AND cat_id = %s", (new_avail_bgt, session.get("dept_id"), cat_result[0]))
         cursor.execute("UPDATE eerm_exp SET exp_status = 'Approved' WHERE exp_id = %s", (exp_id,))
+        cursor.execute("INSERT INTO eerm_apr (exp_id, user_id, apr_date) VALUES (%s, %s, NOW())", (exp_id, session.get("user_id"),))
         conn.commit()
         add_log(
             conn,

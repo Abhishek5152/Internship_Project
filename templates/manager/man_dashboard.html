@@ -4,6 +4,11 @@
 {% if msg %}
 <script>alert("{{ msg }}")</script>
 {% endif %}
+<style>
+    .page-content {
+    min-height: calc(100vh - 105px); /* adjust 105px = header height */
+    }
+</style>
             <div class="page-content">
                 <div class="page-header">
                     <div class="container-fluid">
@@ -30,12 +35,12 @@
                         <div class="statistic-block block">
                             <div class="progress-details d-flex align-items-end justify-content-between">
                             <div class="title">
-                                <div class="icon"><i class="fa fa-user"></i></div><strong>Managers</strong>
+                                <div class="icon"><i class="fa fa-list"></i></div><strong>Requests</strong>
                             </div>
-                            <div class="number dashtext-2">{{ managers }}</div>
+                            <div class="number dashtext-2">{{ requests }}</div>
                             </div>
                             <div class="progress progress-template">
-                            <div role="progressbar" style="width: {{ mgr_percent }}%" aria-valuenow="{{ mgr_percent }}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-2"></div>
+                            <div role="progressbar" style="width: {{ req_percent }}%" aria-valuenow="{{ req_percent }}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-2"></div>
                             </div>
                         </div>
                         </div>
@@ -68,25 +73,7 @@
                     </div>
                     </div>
                 </section>
-                <section class="no-padding-bottom">
-                    <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-lg-6">
-                        <div class="bar-chart block ">
-                            <div class="title"><strong class="d-block">Resource Requests</strong></div>
-                            <canvas id="barChartExample1"></canvas>
-                        </div>
-                        </div>
-                        <div class="col-lg-6">
-                        <div class="bar-chart block">
-                            <div class="title"><strong class="d-block">Expense Requests</strong></div>
-                            <canvas id="barChartExample2"></canvas>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
-                </section>
-                <section class="no-padding-top mb-3">
+                <section class="no-padding-top ">
                     <div class="container-fluid">
                     <div class="row">
                         <div class="col-lg-4">
@@ -121,7 +108,7 @@
                 </section>
                 <script>
                     window.onload = function () {
-                        fetch('/admin/api/dashboard')
+                        fetch('/manager/api/mandash')
                         .then(res => res.json())
                         .then(data => {
 
@@ -155,37 +142,6 @@
                                 window.pieChart3.data.datasets[0].data = data.categories.values;
                                 window.pieChart3.update();
                             }
-
-                            if (window.barChartExample1) {
-                                window.barChartExample1.data.datasets[0].label = "Total Resource";
-                                window.barChartExample1.data.datasets[1].label = "Approved Resource";
-                                window.barChartExample1.data.labels = data.res_requests.labels;
-                                window.barChartExample1.data.datasets[0].data = data.res_requests.total;
-                                window.barChartExample1.data.datasets[1].data = data.res_requests.approved;
-                                window.barChartExample1.data.datasets[0].backgroundColor = 'rgba(134, 77, 217, 0.57)';
-                                window.barChartExample1.data.datasets[1].backgroundColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample1.data.datasets[0].hoverBackgroundColor = 'rgba(134, 77, 217, 0.57)';
-                                window.barChartExample1.data.datasets[1].hoverBackgroundColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample1.data.datasets[0].borderColor = 'rgba(134, 77, 217, 1)';
-                                window.barChartExample1.data.datasets[1].borderColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample1.update();
-                            }
-
-                            if (window.barChartExample2) {
-                                window.barChartExample2.data.datasets[0].label = "Total Expense";
-                                window.barChartExample2.data.datasets[1].label = "Approved Expense";
-                                window.barChartExample2.data.labels = data.exp_requests.labels;
-                                window.barChartExample2.data.datasets[0].data = data.exp_requests.total;
-                                window.barChartExample2.data.datasets[1].data = data.exp_requests.approved;
-                                window.barChartExample2.data.datasets[1].backgroundColor = 'rgba(238, 139, 152, 0.7)';
-                                window.barChartExample2.data.datasets[0].backgroundColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample2.data.datasets[1].hoverBackgroundColor = 'rgba(238, 139, 152, 0.7)';
-                                window.barChartExample2.data.datasets[0].hoverBackgroundColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample2.data.datasets[1].borderColor = 'rgba(238, 139, 152, 1)';
-                                window.barChartExample2.data.datasets[0].borderColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample2.update();
-                            }
-
                         });
                     };
                     </script>

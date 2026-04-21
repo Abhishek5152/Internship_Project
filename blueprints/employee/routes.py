@@ -24,41 +24,57 @@ def empdash():
     cursor = conn.cursor()
     try:
 
-        cursor.execute("SELECT COUNT(*) FROM eerm_users where user_role != 'Admin'")
-        users = get_value(cursor)
+        cursor.execute("""SELECT
+                (SELECT COUNT(*) FROM eerm_req r JOIN eerm_users u ON r.user_id = u.user_id WHERE u.dept_id = %s ) +
+                (SELECT COUNT(*) FROM eerm_exp e JOIN eerm_users u ON e.user_id = u.user_id WHERE u.dept_id = %s )
+                AS total_requests;""", (session.get("dept_id"),session.get("dept_id"),))
+        all_requests = get_value(cursor)
 
-        cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Employee'")
-        employees = get_value(cursor)
+        cursor.execute("""SELECT 
+                (SELECT COUNT(*) FROM eerm_req WHERE user_id = %s ) +
+                (SELECT COUNT(*) FROM eerm_exp WHERE user_id = %s )
+                AS total_requests;""", (session.get("user_id"),session.get("user_id"),))
+        my_requests = get_value(cursor)
 
-        cursor.execute("SELECT COUNT(*) FROM eerm_users WHERE user_role = 'Manager'")
-        managers = get_value(cursor)
+        cursor.execute("""SELECT 
+                (SELECT COUNT(*) FROM eerm_req WHERE user_id = %s AND req_status = 'Pending') +
+                (SELECT COUNT(*) FROM eerm_exp WHERE user_id = %s AND exp_status = 'Pending')
+                AS total_requests;""", (session.get("user_id"),session.get("user_id"),))
+        Pen_requests = get_value(cursor)
 
-        cursor.execute("SELECT COUNT(*) FROM eerm_res")
-        all_resources = get_value(cursor)
+        cursor.execute("""SELECT 
+                (SELECT COUNT(*) FROM eerm_req WHERE user_id = %s AND req_status = 'Approved') +
+                (SELECT COUNT(*) FROM eerm_exp WHERE user_id = %s AND exp_status = 'Approved')
+                AS total_requests;""", (session.get("user_id"),session.get("user_id"),))
+        apr_requests = get_value(cursor)
 
-        cursor.execute("SELECT COUNT(*) FROM eerm_alloc")
-        active_resources = get_value(cursor)
+        cursor.execute("""SELECT 
+                (SELECT COUNT(*) FROM eerm_req WHERE user_id = %s AND req_status = 'Rejected') +
+                (SELECT COUNT(*) FROM eerm_exp WHERE user_id = %s AND exp_status = 'Rejected')
+                AS total_requests;""", (session.get("user_id"),session.get("user_id"),))
+        rej_requests = get_value(cursor)
 
-        cursor.execute("SELECT SUM(amt_lmt) FROM eerm_budget")
-        budget = get_value(cursor)
+        cursor.execute("SELECT SUM(exp_amt) FROM eerm_exp WHERE user_id = %s", (session.get("user_id"),))
+        total_cost = get_value(cursor)
 
-        cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget")
-        avail_budget = get_value(cursor)
+        cursor.execute("SELECT SUM(exp_amt) FROM eerm_exp WHERE user_id = %s AND exp_status = 'Approved'", (session.get("user_id"),))
+        apr_cost = get_value(cursor)
 
-        emp_percent = (employees / users * 100) if users else 0
-        mgr_percent = (managers / users * 100) if users else 0
-        res_percent = (active_resources / all_resources * 100) if all_resources else 0
-        bgt_percent = (avail_budget / budget * 100) if budget else 0
+        req_perc = (my_requests / all_requests * 100) if all_requests > 0 else 0
+        pen_perc = (Pen_requests / all_requests * 100) if all_requests > 0 else 0
+        apr_perc = (apr_requests / all_requests * 100) if all_requests > 0 else 0
+        cost_perc = (apr_cost / total_cost * 100) if total_cost > 0 else 0
 
         return render_template('employee/emp_dashboard.html', 
-                               employees=employees, 
-                               managers=managers, 
-                               active_resources=active_resources,
-                               avail_budget=int(avail_budget),
-                               bgt_percent=bgt_percent,
-                               emp_percent=emp_percent,
-                               mgr_percent=mgr_percent,
-                               res_percent=res_percent
+                               my_requests=my_requests,
+                               Pen_requests=Pen_requests,
+                               apr_requests=apr_requests,
+                               req_perc=req_perc,
+                               pen_perc=pen_perc,
+                               apr_perc=apr_perc,
+                               rej_requests=rej_requests,
+                               total_cost=total_cost,
+                               cost_perc=cost_perc
                                )
         
     except Exception as e:

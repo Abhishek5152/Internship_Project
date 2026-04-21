@@ -1,75 +1,50 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, session
 from database import get_db_connection
+from utils import get_value
 
 emp_api = Blueprint('emp_api', __name__)
 
 @emp_api.route('/empdash')
-def dashboard_data():
+def empdash_data():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT COUNT(*) FROM eerm_res")
-    total_res = cursor.fetchone()[0] or 0
-
-    cursor.execute("SELECT COUNT(*) FROM eerm_alloc")
-    allocated = cursor.fetchone()[0] or 0
-
-    cursor.execute("SELECT SUM(amt_lmt) FROM eerm_budget")
-    total_budget = cursor.fetchone()[0] or 0
-
-    cursor.execute("SELECT SUM(avail_bgt) FROM eerm_budget")
-    avail_budget = cursor.fetchone()[0] or 0
-
-    cursor.execute("SELECT rc.cat_name, COUNT(r.res_id) FROM eerm_res r JOIN eerm_rescat rc ON r.cat_id = rc.cat_id GROUP BY rc.cat_name;")
-    categories = cursor.fetchall() or []
-
-    cursor.execute("""SELECT d.dept_name,
-        COUNT(r.req_id) AS total_requests,
-        COALESCE(SUM(CASE WHEN r.req_status = 'Approved' THEN 1 ELSE 0 END), 0) AS approved_requests
-        FROM eerm_dept d
-        LEFT JOIN eerm_users u ON d.dept_id = u.dept_id
-        LEFT JOIN eerm_req r ON u.user_id = r.user_id
-        GROUP BY d.dept_name;""")
-    res_requests = cursor.fetchall() or []
+    cursor.execute("""SELECT
+                (SELECT COUNT(*) FROM eerm_req r JOIN eerm_users u ON r.user_id = u.user_id WHERE u.dept_id = %s ) +
+                (SELECT COUNT(*) FROM eerm_exp e JOIN eerm_users u ON e.user_id = u.user_id WHERE u.dept_id = %s )
+                AS total_requests;""", (session.get("dept_id"),session.get("dept_id"),))
+    all_requests = get_value(cursor)
 
     cursor.execute("""SELECT 
-        d.dept_name,
-        COALESCE(SUM(e.exp_amt), 0) AS total_expense,
-        COALESCE(SUM(CASE 
-        WHEN e.exp_status = 'Approved' THEN e.exp_amt 
-        ELSE 0 
-        END), 0) AS approved_expense
-        FROM eerm_dept d
-        LEFT JOIN eerm_users u 
-        ON d.dept_id = u.dept_id
-        LEFT JOIN eerm_exp e 
-        ON u.user_id = e.user_id
-        GROUP BY d.dept_name
-        ORDER BY d.dept_name;""")
-    exp_requests = cursor.fetchall() or []
+            (SELECT COUNT(*) FROM eerm_req WHERE user_id = %s ) +
+            (SELECT COUNT(*) FROM eerm_exp WHERE user_id = %s )
+            AS total_requests;""", (session.get("user_id"),session.get("user_id"),))
+    my_requests = get_value(cursor)
+
+    cursor.execute("""SELECT 
+            (SELECT COUNT(*) FROM eerm_req WHERE user_id = %s AND req_status = 'Pending') +
+            (SELECT COUNT(*) FROM eerm_exp WHERE user_id = %s AND exp_status = 'Pending')
+            AS total_requests;""", (session.get("user_id"),session.get("user_id"),))
+    Pen_requests = get_value(cursor)
+
+    cursor.execute("""SELECT 
+            (SELECT COUNT(*) FROM eerm_req WHERE user_id = %s AND req_status = 'Approved') +
+            (SELECT COUNT(*) FROM eerm_exp WHERE user_id = %s AND exp_status = 'Approved')
+            AS total_requests;""", (session.get("user_id"),session.get("user_id"),))
+    apr_requests = get_value(cursor)
+
+    cursor.execute("""SELECT 
+            (SELECT COUNT(*) FROM eerm_req WHERE user_id = %s AND req_status = 'Rejected') +
+            (SELECT COUNT(*) FROM eerm_exp WHERE user_id = %s AND exp_status = 'Rejected')
+            AS total_requests;""", (session.get("user_id"),session.get("user_id"),))
+    rej_requests = get_value(cursor)
+
 
     return jsonify({
-        "resources": {
-            "total": total_res,
-            "allocated": allocated
-        },
-        "budget": {
-            "total": total_budget,
-            "available": avail_budget
-        },
-        "categories": {
-            "labels": [row[0] for row in categories],
-            "values": [row[1] for row in categories],
-            "total": len(categories)
-        },
-        "res_requests": {
-            "labels": [row[0] for row in res_requests],
-            "total": [row[1] for row in res_requests],
-            "approved": [row[2] for row in res_requests]
-        },
-        "exp_requests": {
-            "labels": [row[0] for row in exp_requests],
-            "total": [row[1] for row in exp_requests],
-            "approved": [row[2] for row in exp_requests]
-        }
-    })
+    "requests": {
+        "total": my_requests or 0,
+        "pending": Pen_requests or 0,
+        "approved": apr_requests or 0,
+        "rejected": rej_requests or 0
+    }
+})

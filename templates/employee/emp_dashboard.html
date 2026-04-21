@@ -4,6 +4,11 @@
 {% if msg %}
 <script>alert("{{ msg }}")</script>
 {% endif %}
+<style>
+    .page-content {
+    min-height: calc(100vh - 105px); /* adjust 105px = header height */
+    }
+</style>
             <div class="page-content">
                 <div class="page-header">
                     <div class="container-fluid">
@@ -17,12 +22,12 @@
                         <div class="statistic-block block">
                             <div class="progress-details d-flex align-items-end justify-content-between">
                             <div class="title">
-                                <div class="icon"><i class="fa fa-user-o"></i></div><strong>Employees</strong>
+                                <div class="icon"><i class="fa fa-list"></i></div><strong>My Requests</strong>
                             </div>
-                            <div class="number dashtext-1">{{ employees }}</div>
+                            <div class="number dashtext-1">{{ my_requests }}</div>
                             </div>
                             <div class="progress progress-template">
-                            <div role="progressbar" style="width: {{ emp_percent }}%" aria-valuenow="{{ emp_percent }}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-1"></div>
+                            <div role="progressbar" style="width: {{ req_perc }}%" aria-valuenow="{{ req_perc }}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-1"></div>
                             </div>
                         </div>
                         </div>
@@ -30,12 +35,12 @@
                         <div class="statistic-block block">
                             <div class="progress-details d-flex align-items-end justify-content-between">
                             <div class="title">
-                                <div class="icon"><i class="fa fa-user"></i></div><strong>Managers</strong>
+                                <div class="icon"><i class="fa fa-clock-o"></i></div><strong>Pending Requests</strong>
                             </div>
-                            <div class="number dashtext-2">{{ managers }}</div>
+                            <div class="number dashtext-2">{{ Pen_requests }}</div>
                             </div>
                             <div class="progress progress-template">
-                            <div role="progressbar" style="width: {{ mgr_percent }}%" aria-valuenow="{{ mgr_percent }}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-2"></div>
+                            <div role="progressbar" style="width: {{ pen_perc }}%" aria-valuenow="{{ pen_perc }}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-2"></div>
                             </div>
                         </div>
                         </div>
@@ -43,12 +48,12 @@
                         <div class="statistic-block block">
                             <div class="progress-details d-flex align-items-end justify-content-between">
                             <div class="title">
-                                <div class="icon"><i class="fa fa-cubes"></i></div><strong>Active Resources</strong>
+                                <div class="icon"><i class="fa fa-check-circle"></i></div><strong>Approved Requests</strong>
                             </div>
-                            <div class="number dashtext-3">{{ active_resources }}</div>
+                            <div class="number dashtext-3">{{ apr_requests }}</div>
                             </div>
                             <div class="progress progress-template">
-                            <div role="progressbar" style="width: {{ res_percent }}%" aria-valuenow="{{ res_percent }}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-3"></div>
+                            <div role="progressbar" style="width: {{ apr_perc }}%" aria-valuenow="{{ apr_perc }}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-3"></div>
                             </div>
                         </div>
                         </div>
@@ -56,63 +61,45 @@
                         <div class="statistic-block block">
                             <div class="progress-details d-flex align-items-end justify-content-between">
                             <div class="title">
-                                <div class="icon"><i class="fa fa-money"></i></div><strong>Budget</strong>
+                                <div class="icon"><i class="fa fa-money"></i></div><strong>Expense Claimed</strong>
                             </div>
-                            <div class="number dashtext-4">{{ avail_budget }}</div>
+                            <div class="number dashtext-4">{{ total_cost }}</div>
                             </div>
                             <div class="progress progress-template">
-                            <div role="progressbar" style="width: {{ bgt_percent }}%" aria-valuenow="{{ bgt_percent }}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-4"></div>
+                            <div role="progressbar" style="width: {{ cost_perc }}%" aria-valuenow="{{ cost_perc }}" aria-valuemin="0" aria-valuemax="100" class="progress-bar progress-bar-template dashbg-4"></div>
                             </div>
                         </div>
                         </div>
                     </div>
                     </div>
                 </section>
-                <section class="no-padding-bottom">
-                    <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-lg-6">
-                        <div class="bar-chart block ">
-                            <div class="title"><strong class="d-block">Resource Requests</strong></div>
-                            <canvas id="barChartExample1"></canvas>
-                        </div>
-                        </div>
-                        <div class="col-lg-6">
-                        <div class="bar-chart block">
-                            <div class="title"><strong class="d-block">Expense Requests</strong></div>
-                            <canvas id="barChartExample2"></canvas>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
-                </section>
-                <section class="no-padding-top mb-3">
+                <section class="no-padding-top ">
                     <div class="container-fluid">
                     <div class="row">
                         <div class="col-lg-4">
                         <div class="stats-with-chart-2 block">
-                            <div class="title"><strong class="d-block">Resource Utilization</strong><span class="d-block">Allocated vs Available</span></div>
+                            <div class="title"><strong class="d-block">Pending Requests</strong><span class="d-block">Pending vs Total</span></div>
                             <div class="piechart chart">
                             <canvas id="pieChartHome1"></canvas>
-                            <div class="text"><strong id="resCount" class="d-block"></strong><span class="d-block">Total Resources</span></div>
+                            <div class="text"><strong id="resCount" class="d-block"></strong><span class="d-block">Total Pending</span></div>
                             </div>
                         </div>
                         </div>
                         <div class="col-lg-4">
                         <div class="stats-with-chart-2 block">
-                            <div class="title"><strong class="d-block">Budget Usage</strong><span class="d-block">Used vs Remaining</span></div>
+                            <div class="title"><strong class="d-block">Approved Requests</strong><span class="d-block">Approved vs Total</span></div>
                             <div class="piechart chart">
                             <canvas id="pieChartHome2"></canvas>
-                            <div class="text"><strong id="bgtTotal" class="d-block"></strong><span class="d-block">Total Budget</span></div>
+                            <div class="text"><strong id="bgtTotal" class="d-block"></strong><span class="d-block">Total Approved</span></div>
                             </div>
                         </div>
                         </div>
                         <div class="col-lg-4">
                         <div class="stats-with-chart-2 block">
-                            <div class="title"><strong class="d-block">Resource Categories</strong><span class="d-block">Distribution</span></div>
+                            <div class="title"><strong class="d-block">Rejected Requests</strong><span class="d-block">Rejected vs Total</span></div>
                             <div class="piechart chart">
                             <canvas id="pieChartHome3"></canvas>
-                            <div class="text"><strong id="catTotal" class="d-block"></strong><span class="d-block">Total Categories</span></div>
+                            <div class="text"><strong id="catTotal" class="d-block"></strong><span class="d-block">Total Rejected</span></div>
                             </div>
                         </div>
                         </div>
@@ -121,69 +108,35 @@
                 </section>
                 <script>
                     window.onload = function () {
-                        fetch('/admin/api/dashboard')
+                        fetch('/employee/api/empdash')
                         .then(res => res.json())
                         .then(data => {
 
-                            console.log("API DATA:", data);
-                            console.log("Chart:", window.pieChart1);
+                            const total = data.requests.total;
+                            const pending = data.requests.pending;
+                            const approved = data.requests.approved;
+                            const rejected = data.requests.rejected;
 
-                            const totalRes = data.resources.total;
-                            const allocated = data.resources.allocated;
-                            const available = Math.max(totalRes - allocated, 0);
-
-                            const totalBudget = data.budget.total;
-                            const availableBudget = data.budget.available;
-                            const usedBudget = totalBudget - availableBudget;
-
-                            document.getElementById('resCount').innerText = totalRes;
-                            document.getElementById('bgtTotal').innerText = totalBudget;
-                            document.getElementById('catTotal').innerText = data.categories.total;
+                            document.getElementById('resCount').innerText = pending;
+                            document.getElementById('bgtTotal').innerText = approved;
+                            document.getElementById('catTotal').innerText = rejected;
 
                             if (window.pieChart1) {
-                                window.pieChart1.data.datasets[0].data = [allocated, available];
+                                window.pieChart1.data.datasets[0].data = [pending, total - pending];
+                                window.pieChart1.data.labels = ['Pending', 'Other'];
                                 window.pieChart1.update();
                             }
 
                             if (window.pieChart2) {
-                                window.pieChart2.data.datasets[0].data = [usedBudget, availableBudget];
+                                window.pieChart2.data.datasets[0].data = [approved, total - approved];
+                                window.pieChart2.data.labels = ['Approved', 'Other'];
                                 window.pieChart2.update();
                             }
 
                             if (window.pieChart3) {
-                                window.pieChart3.data.labels = data.categories.labels;
-                                window.pieChart3.data.datasets[0].data = data.categories.values;
+                                window.pieChart3.data.datasets[0].data = [rejected, total - rejected];
+                                window.pieChart3.data.labels = ['Rejected', 'Other'];
                                 window.pieChart3.update();
-                            }
-
-                            if (window.barChartExample1) {
-                                window.barChartExample1.data.datasets[0].label = "Total Resource";
-                                window.barChartExample1.data.datasets[1].label = "Approved Resource";
-                                window.barChartExample1.data.labels = data.res_requests.labels;
-                                window.barChartExample1.data.datasets[0].data = data.res_requests.total;
-                                window.barChartExample1.data.datasets[1].data = data.res_requests.approved;
-                                window.barChartExample1.data.datasets[0].backgroundColor = 'rgba(134, 77, 217, 0.57)';
-                                window.barChartExample1.data.datasets[1].backgroundColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample1.data.datasets[0].hoverBackgroundColor = 'rgba(134, 77, 217, 0.57)';
-                                window.barChartExample1.data.datasets[1].hoverBackgroundColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample1.data.datasets[0].borderColor = 'rgba(134, 77, 217, 1)';
-                                window.barChartExample1.data.datasets[1].borderColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample1.update();
-                            }
-
-                            if (window.barChartExample2) {
-                                window.barChartExample2.data.datasets[0].label = "Total Expense";
-                                window.barChartExample2.data.datasets[1].label = "Approved Expense";
-                                window.barChartExample2.data.labels = data.exp_requests.labels;
-                                window.barChartExample2.data.datasets[0].data = data.exp_requests.total;
-                                window.barChartExample2.data.datasets[1].data = data.exp_requests.approved;
-                                window.barChartExample2.data.datasets[1].backgroundColor = 'rgba(238, 139, 152, 0.7)';
-                                window.barChartExample2.data.datasets[0].backgroundColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample2.data.datasets[1].hoverBackgroundColor = 'rgba(238, 139, 152, 0.7)';
-                                window.barChartExample2.data.datasets[0].hoverBackgroundColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample2.data.datasets[1].borderColor = 'rgba(238, 139, 152, 1)';
-                                window.barChartExample2.data.datasets[0].borderColor = 'rgba(75, 75, 75, 0.7)';
-                                window.barChartExample2.update();
                             }
 
                         });
