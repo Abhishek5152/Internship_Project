@@ -139,13 +139,12 @@ def userlogin():
         user_pass = request.form['user_pass']
         cursor.execute("SELECT * FROM eerm_users WHERE user_email = %s", (user_email,))
         user = cursor.fetchone()
+        
         if user and check_password_hash(user[3], user_pass):
             session["user_id"] = user[0]
             session["user_name"] = user[1]
             session["user_role"] = user[4]
             session["dept_id"] = user[5]
-
-
 
             add_log(
                 conn,
